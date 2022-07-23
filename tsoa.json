@@ -1,0 +1,29 @@
+{
+    "entryFile": "./src/index.ts",
+    "noImplicitAdditionalProperties": "throw-on-extras",
+    "spec": {
+        "outputDirectory": ".",
+        "specVersion": 3.0,
+        "basePath": "/api/v1",
+        "securityDefinitions": {
+          "Bearer" :{
+            "type": "apiKey",
+            "name": "Authorization",
+            "in":"header",
+            "description": "Jwt using "
+
+          }
+        }
+      },
+    "routes":{
+        "routesDir": "./src" 
+      },
+    "controllerPathGlobs": [
+        "./src/v1/controller/*.ts"
+      ]
+       
+    }
+    
+   
+    
+

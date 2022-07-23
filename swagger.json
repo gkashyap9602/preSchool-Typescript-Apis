@@ -1,0 +1,563 @@
+{
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"responseType": {
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"Status_Code": {
+						"type": "number",
+						"format": "double"
+					},
+					"result": {
+						"additionalProperties": false,
+						"type": "object"
+					}
+				},
+				"required": [
+					"message",
+					"Status_Code"
+				],
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {
+			"Bearer": {
+				"type": "apiKey",
+				"name": "Authorization",
+				"in": "header",
+				"description": "Jwt using "
+			}
+		}
+	},
+	"info": {
+		"title": "typescript-project",
+		"version": "1.0.0",
+		"license": {
+			"name": "ISC"
+		},
+		"contact": {}
+	},
+	"openapi": "3.0.0",
+	"paths": {
+		"/admin/user/create": {
+			"post": {
+				"operationId": "New_Users",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"religion": {
+										"type": "string"
+									},
+									"mother_name": {
+										"type": "string"
+									},
+									"father_name": {
+										"type": "string"
+									},
+									"username": {
+										"type": "string"
+									},
+									"gender": {
+										"type": "string"
+									},
+									"password": {
+										"type": "string"
+									},
+									"mobileNum": {
+										"type": "number",
+										"format": "double"
+									},
+									"email": {
+										"type": "string"
+									},
+									"lname": {
+										"type": "string"
+									},
+									"fname": {
+										"type": "string"
+									},
+									"role": {
+										"type": "number",
+										"format": "double"
+									}
+								},
+								"required": [
+									"religion",
+									"mother_name",
+									"father_name",
+									"username",
+									"gender",
+									"password",
+									"mobileNum",
+									"email",
+									"lname",
+									"fname",
+									"role"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/user/login": {
+			"post": {
+				"operationId": "UserLoginFun",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"email": {
+										"type": "string"
+									},
+									"password": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"email",
+									"password"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/user/update/{id}": {
+			"put": {
+				"operationId": "Update_userfun",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"Bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"religion": {
+										"type": "string"
+									},
+									"father_name": {
+										"type": "string"
+									},
+									"gender": {
+										"type": "string"
+									},
+									"password": {
+										"type": "string"
+									},
+									"mobileNum": {
+										"type": "number",
+										"format": "double"
+									},
+									"email": {
+										"type": "string"
+									},
+									"lname": {
+										"type": "string"
+									},
+									"fname": {
+										"type": "string"
+									},
+									"role": {
+										"type": "number",
+										"format": "double"
+									}
+								},
+								"required": [
+									"religion",
+									"father_name",
+									"gender",
+									"password",
+									"mobileNum",
+									"email",
+									"lname",
+									"fname",
+									"role"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/user/delete/{id}": {
+			"delete": {
+				"operationId": "Delete_Userfun",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"Bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/admin/users": {
+			"get": {
+				"operationId": "User_detailsfun",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"Bearer": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/admin/class/create": {
+			"post": {
+				"operationId": "AddCourse",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"Bearer": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"Monthly_Fee": {
+										"type": "number",
+										"format": "double"
+									},
+									"Admission_Fee": {
+										"type": "number",
+										"format": "double"
+									},
+									"Class_Code": {
+										"type": "string"
+									},
+									"Class": {
+										"type": "number",
+										"format": "double"
+									}
+								},
+								"required": [
+									"Monthly_Fee",
+									"Admission_Fee",
+									"Class_Code",
+									"Class"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/class/update/{id}": {
+			"put": {
+				"operationId": "UpdateClass",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"Bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"Monthly_Fee": {
+										"type": "number",
+										"format": "double"
+									},
+									"Class_Code": {
+										"type": "string"
+									},
+									"Admission_Fee": {
+										"type": "number",
+										"format": "double"
+									},
+									"Class": {
+										"type": "number",
+										"format": "double"
+									}
+								},
+								"required": [
+									"Monthly_Fee",
+									"Class_Code",
+									"Admission_Fee",
+									"Class"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/class/delete/{id}": {
+			"delete": {
+				"operationId": "DeleteClass",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"Bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/admin/classes": {
+			"get": {
+				"operationId": "Get_classes",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"Bearer": []
+					}
+				],
+				"parameters": []
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/api/v1"
+		}
+	]
+}
