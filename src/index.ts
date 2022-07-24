@@ -6,6 +6,7 @@ import router from "./mainRoute";
 import middleware from "./utils/middleware";
 // import {RegisterRoutes} from "./routes"
 import * as swaggerUI from "swagger-ui-express"
+import cors from "cors"
 
 const app = express();
 app.listen(port, () => {
@@ -16,6 +17,7 @@ connect.connection()
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors());
 
 const swaggerDocument = require('../swagger.json')
 // console.log(swaggerDocument);
