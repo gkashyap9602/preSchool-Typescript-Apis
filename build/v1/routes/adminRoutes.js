@@ -55,29 +55,62 @@ router.post('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, func
 //     response.CatchResponse? response_handler( response.CatchResponse,res): next(response.CatchError)
 //     });
 //--------------------------class routes------------------------------
-router.post('/class/create', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/class/create', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
     console.log(req.body, "admin route side");
     const response = yield controller.addCourse(req.body);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
-router.put('/class/update/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.put('/class/update/:id', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
     (0, helperFun_1.object_id_check)(req.params.id, res);
     console.log(req.body, req.params.id, "admin route side");
     const response = yield controller.updateClass(req.body, req.params.id);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
-router.delete('/class/delete/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete('/class/delete/:id', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
     (0, helperFun_1.object_id_check)(req.params.id, res);
     console.log(req.params.id, "admin route side");
     const response = yield controller.deleteClass(req.params.id);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
-router.get('/classes', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/classes', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
     const response = yield controller.get_classes();
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
+//-------------------student routes-----------------------------
+router.post('/student/create', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    const response = yield controller.Add_Student(req.body);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
+router.put('/student/update/:id', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    (0, helperFun_1.object_id_check)(req.params.id, res);
+    const response = yield controller.updateStudent(req.body, req.params.id);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
+router.delete('/student/delete/:id', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    (0, helperFun_1.object_id_check)(req.params.id, res);
+    console.log(req.params.id, "admin route side");
+    const response = yield controller.deleteStudent(req.params.id);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
+// router.get('/students',async (req: Request, res: Response, next: NextFunction) => {
+//     const controller = new AdminController(req, res)
+//     // if(!req.query) throw res.send("please enter data")
+//     const {page,size} = req.query
+//     const pagination = {page,size}
+//     const response = await controller.get_Students(pagination)
+//     response.CatchError ? next(response.CatchError) : response_handler(response, res)
+// });
+router.post('/login/refreshtoken', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    console.log(req.body.refresh_token, "admin route side");
+    const response = yield controller.renew_token(req.body);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
 module.exports = router;

@@ -27,6 +27,8 @@ const message_1 = require("../../utils/message");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const index_2 = __importDefault(require("../../services/index"));
+const config_1 = require("../../config/config");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const auth_1 = require("../../utils/auth");
 const helperFun_1 = require("../../utils/helperFun");
 const tsoa_1 = require("tsoa");
@@ -172,7 +174,7 @@ let AdminController = class AdminController extends tsoa_1.Controller {
     ;
     // @Security("Bearer")
     // @Get("/users/{id}")
-    // public async SingleUserDetail(paramsId:string) {
+    // public async SingleUserDetail(@Path() paramsId:string) {
     //  try {
     //   const user_id = paramsId
     //   const userdata = await AdminModels.ModelNewUser.find(
@@ -249,6 +251,118 @@ let AdminController = class AdminController extends tsoa_1.Controller {
         });
     }
     ;
+    //---------------------------student functions ------------------------------//
+    Add_Student(request) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const body = request;
+                const FindClass = yield index_1.AdminModels.ModelNewCource.findById({ _id: body.classId });
+                //  console.log(className);
+                if (!FindClass)
+                    throw new helperFun_1.error_Object(message_1.MESSAGES.INVALID_ID_OR_DATA_DOES_NOT_EXIST, http_status_codes_1.default.NOT_FOUND);
+                const ClassName = FindClass.Class;
+                const finduser = yield index_1.AdminModels.ModelNewStudent.find({
+                    user_id: body.userId,
+                    class_id: body.classId,
+                });
+                // console.log(finduser, "find user");
+                if (finduser.length > 0) {
+                    console.log("already");
+                    throw new helperFun_1.error_Object(message_1.MESSAGES.STUDENT_ALREADY_REGISTERED_WITH_SAME_CLASS, http_status_codes_1.default.CONFLICT);
+                }
+                else {
+                    const ClassCount = yield index_1.AdminModels.ModelNewStudent.find({
+                        class_id: body.classId,
+                    }).count();
+                    // console.log(countt,"same class count");
+                    Object.assign(body, { roll_num: ClassName * 1000 + 1 + ClassCount });
+                    const Store_Student = yield new index_1.AdminModels.ModelNewStudent(body).save();
+                    return new helperFun_1.resp_Object(message_1.MESSAGES.STUDENT_REGISTERED_SUCCESSFULLY, http_status_codes_1.default.CREATED, Store_Student);
+                }
+            }
+            catch (error) {
+                return { CatchError: error };
+            }
+        });
+    }
+    ;
+    updateStudent(request, id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const updates = request;
+                const result = yield index_1.AdminModels.ModelNewStudent.findByIdAndUpdate(id, updates, { new: true });
+                if (!result)
+                    throw new helperFun_1.error_Object(message_1.MESSAGES.INVALID_ID_OR_DATA_DOES_NOT_EXIST, http_status_codes_1.default.NOT_FOUND);
+                return new helperFun_1.resp_Object(message_1.MESSAGES.STUDENT_UPDATED_SUCCESSFULLY, http_status_codes_1.default.NO_CONTENT, result);
+            }
+            catch (error) {
+                return { CatchError: error };
+            }
+        });
+    }
+    ;
+    deleteStudent(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const UserDeleted = yield index_1.AdminModels.ModelNewStudent.findByIdAndUpdate(id, { IsActive: false }, { new: true });
+                // const data = await AdminModels.ModelNewStudent.deleteOne({ _id: id });
+                if (!UserDeleted)
+                    throw new helperFun_1.error_Object(message_1.MESSAGES.INVALID_ID_OR_DATA_DOES_NOT_EXIST, http_status_codes_1.default.NOT_FOUND);
+                return new helperFun_1.resp_Object(message_1.MESSAGES.STUDENT_DELETED_SUCCESSFULLY, http_status_codes_1.default.NO_CONTENT);
+            }
+            catch (error) {
+                return { CatchError: error };
+            }
+        });
+    }
+    ;
+    //   @Security('Bearer')
+    //   @Get('/students')
+    //   public async get_Students(
+    // 	@Query() request: { page: number|any; size: number | any }): Promise<responseType | any> {
+    // 	try {
+    // 	  let { page, size } = request;
+    // 	  if (!page) {
+    // 		page = 1;
+    // 	  }
+    // 	  if (!size) {
+    // 		size = 2;
+    // 	  }
+    // 	  const limit = parseInt(size);
+    // 	  const skip = (page - 1) * size;
+    // 	  const fetchdata = await AdminModels.ModelNewUser.find({ role: 3,IsActive:true })
+    // 		.limit(limit)
+    // 		.skip(skip)
+    // 		.sort({ updatedAt: -1 });
+    // 	  return new resp_Object("Student Data", 200, fetchdata);
+    // 	} catch (error) {
+    // 	  return { errors: error };
+    // 	}
+    //   }
+    //--------------------refresh token-----------------------------
+    renew_token(request) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { refresh_token } = request;
+                console.log(refresh_token);
+                if (refresh_token || refreshTokens.includes(refresh_token)) {
+                    const verify = jsonwebtoken_1.default.verify(refresh_token, config_1.refresh_token_SecretKey);
+                    if (!verify)
+                        new helperFun_1.error_Object("token not generated", 404);
+                    console.log(typeof verify, "verifyyyy");
+                    const New_Access_token = (0, auth_1.genAuthToken)(verify._id);
+                    if (New_Access_token) {
+                        return new helperFun_1.resp_Object(message_1.MESSAGES.TOKEN_GENERATED_SUCCESSFULLY, http_status_codes_1.default.CREATED, { New_Access_token: New_Access_token.Access_token });
+                    }
+                }
+            }
+            catch (error) {
+                console.log(error, "catch side err");
+                return { CatchError: error };
+            }
+        });
+    }
+    ;
 };
 __decorate([
     (0, tsoa_1.Post)("/user/create"),
@@ -289,6 +403,25 @@ __decorate([
     (0, tsoa_1.Security)('Bearer'),
     (0, tsoa_1.Get)('/classes')
 ], AdminController.prototype, "get_classes", null);
+__decorate([
+    (0, tsoa_1.Security)('Bearer'),
+    (0, tsoa_1.Post)('/student/create'),
+    __param(0, (0, tsoa_1.Body)())
+], AdminController.prototype, "Add_Student", null);
+__decorate([
+    (0, tsoa_1.Security)('Bearer'),
+    (0, tsoa_1.Put)('/student/update/:id'),
+    __param(0, (0, tsoa_1.Body)())
+], AdminController.prototype, "updateStudent", null);
+__decorate([
+    (0, tsoa_1.Security)('Bearer'),
+    (0, tsoa_1.Delete)('/student/delete/:id')
+], AdminController.prototype, "deleteStudent", null);
+__decorate([
+    (0, tsoa_1.Security)('Bearer'),
+    (0, tsoa_1.Post)('/login/refreshtoken'),
+    __param(0, (0, tsoa_1.Body)())
+], AdminController.prototype, "renew_token", null);
 AdminController = __decorate([
     (0, tsoa_1.Tags)("Admin"),
     (0, tsoa_1.Route)("/admin")
