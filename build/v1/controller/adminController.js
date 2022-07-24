@@ -81,7 +81,7 @@ let AdminController = class AdminController extends tsoa_1.Controller {
         });
     }
     ;
-    UserLoginFun(request) {
+    AdminLoginFun(request) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(request, "request");
@@ -93,16 +93,21 @@ let AdminController = class AdminController extends tsoa_1.Controller {
                     throw new helperFun_1.error_Object(message_1.MESSAGES.USER_NOT_VALID, http_status_codes_1.default.UNAUTHORIZED);
                 const user_id = Userdata._id;
                 if (yield bcrypt_1.default.compare(password, Userdata.password)) {
-                    //generating jwt token
-                    const token = (0, auth_1.genAuthToken)(user_id);
-                    if (!token)
-                        throw new helperFun_1.error_Object(message_1.MESSAGES.TOKEN_NOT_GENERATED, http_status_codes_1.default.NOT_FOUND);
-                    //   console.log(token, "token login side");
-                    refreshTokens.push(token.refresh_token);
-                    return new helperFun_1.resp_Object(message_1.MESSAGES.LOGIN_SUCCESSFULLY, http_status_codes_1.default.ACCEPTED, {
-                        AccessToken: token.Access_token,
-                        RefreshToken: token.refresh_token,
-                    });
+                    if (Userdata.role === 1) {
+                        //generating jwt token
+                        const token = (0, auth_1.genAuthToken)(user_id);
+                        if (!token)
+                            throw new helperFun_1.error_Object(message_1.MESSAGES.TOKEN_NOT_GENERATED, http_status_codes_1.default.NOT_FOUND);
+                        //   console.log(token, "token login side");
+                        refreshTokens.push(token.refresh_token);
+                        return new helperFun_1.resp_Object(message_1.MESSAGES.LOGIN_SUCCESSFULLY, http_status_codes_1.default.ACCEPTED, {
+                            AccessToken: token.Access_token,
+                            RefreshToken: token.refresh_token,
+                        });
+                    }
+                    else {
+                        throw new helperFun_1.error_Object(message_1.MESSAGES.YOU_ARE_NOT_ADMIN, http_status_codes_1.default.UNAUTHORIZED);
+                    }
                 }
                 else {
                     throw new helperFun_1.error_Object(message_1.MESSAGES.PASSWORD_NOT_MATCHED, http_status_codes_1.default.UNAUTHORIZED);
@@ -250,9 +255,9 @@ __decorate([
     __param(0, (0, tsoa_1.Body)())
 ], AdminController.prototype, "New_Users", null);
 __decorate([
-    (0, tsoa_1.Post)("/user/login"),
+    (0, tsoa_1.Post)("/login"),
     __param(0, (0, tsoa_1.Body)())
-], AdminController.prototype, "UserLoginFun", null);
+], AdminController.prototype, "AdminLoginFun", null);
 __decorate([
     (0, tsoa_1.Security)("Bearer"),
     (0, tsoa_1.Put)("/user/update/:id"),

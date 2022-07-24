@@ -34,6 +34,7 @@ const mainRoute_1 = __importDefault(require("./mainRoute"));
 const middleware_1 = __importDefault(require("./utils/middleware"));
 // import {RegisterRoutes} from "./routes"
 const swaggerUI = __importStar(require("swagger-ui-express"));
+const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 app.listen(config_1.port, () => {
     console.log(`port is running on ${config_1.port}`);
@@ -42,6 +43,7 @@ connection_1.default.connection();
 app.use(express_1.default.json());
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
+app.use((0, cors_1.default)());
 const swaggerDocument = require('../swagger.json');
 // console.log(swaggerDocument);
 app.use('/swagger-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument), (err) => {

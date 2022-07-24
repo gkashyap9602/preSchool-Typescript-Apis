@@ -42,10 +42,10 @@ router.get('/users', auth_1.verify_token, (req, res, next) => __awaiter(void 0, 
     console.log(response, "response");
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
-router.post('/user/login', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
     console.log(req.body, "admin route side");
-    const response = yield controller.UserLoginFun(req.body);
+    const response = yield controller.AdminLoginFun(req.body);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
 //  router.get('/users/:id',async(req: Request, res: Response, next: NextFunction)=>{
