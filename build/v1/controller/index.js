@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const userController_1 = __importDefault(require("./userController"));
-const adminController_1 = __importDefault(require("./adminController"));
+// import adminController from "./adminController"
 exports.default = {
     userController: userController_1.default,
-    adminController: adminController_1.default
+    // adminController
 };

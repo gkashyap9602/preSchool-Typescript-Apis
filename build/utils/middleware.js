@@ -29,7 +29,6 @@ function handle_err(err, req, res, next) {
             stack: err.stack
         });
     }
-    //   res.json({error:err,message:err.message,name:err.name})
 }
 exports.default = {
     err_create,

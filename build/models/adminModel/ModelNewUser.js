@@ -40,6 +40,9 @@ const NewUserSchema = new mongoose_1.Schema({
     father_name: {
         type: String
     },
+    mother_name: {
+        type: String
+    },
     religion: {
         type: String
     }

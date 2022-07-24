@@ -14,6 +14,10 @@ const MESSAGES = {
     INVALID_EMAIL_ID: "Invalid Email ID",
     LOGIN_SUCCESSFULLY: "Login Successfully",
     PASSWORD_NOT_MATCHED: "Password Not Matched",
-    TOKEN_NOT_GENERATED: "Token Not Generated"
+    TOKEN_NOT_GENERATED: "Token Not Generated",
+    TRANSACTION_SUCCESSFULL: "Transaction Succesfull",
+    CLASS_ALREADY_REGISTERED: "Class Already Registered",
+    CLASS_REGISTERED_SUCCESSFULLY: "Class Registered Successfully",
+    CLASS_UPDATED_SUCCESSFULLY: "Class Updated Successfully",
 };
 exports.MESSAGES = MESSAGES;

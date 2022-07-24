@@ -17,12 +17,12 @@ class resp_Object extends error_Object {
     }
 }
 exports.resp_Object = resp_Object;
-function response_handler(Fun_Response, res_http) {
-    console.log("res handler side");
-    return res_http.status(Fun_Response.Status_Code).json({
-        message: Fun_Response.message,
-        Status_Code: Fun_Response.Status_Code,
-        result: Fun_Response.result
+function response_handler(Response, res_http) {
+    // console.log("res handler side");
+    return res_http.status(Response.Status_Code).json({
+        message: Response.message,
+        Status_Code: Response.Status_Code,
+        result: Response.result
     });
 }
 exports.response_handler = response_handler;

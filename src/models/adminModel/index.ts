@@ -1,6 +1,6 @@
 import { ModelNewUser } from "./ModelNewUser";
-import { ModelNewStudent } from "./Modelstudent";
-import { ModelNewCource } from "./modelcourse";
+import { ModelNewStudent } from "./ModelNewStudent";
+import { ModelNewCource } from "./ModelNewCourse";
 import { ModelTransaction } from "./Modeltransaction";
 
 export default {

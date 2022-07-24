@@ -13,52 +13,71 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
-const index_1 = __importDefault(require("../controller/index"));
 const adminController_1 = require("../controller/adminController");
 const auth_1 = require("../../utils/auth");
 const helperFun_1 = require("../../utils/helperFun");
-// import {responseType} from "../../utils/helperFun"
-router.get("/hello", auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log(req.decode,"decode");
-    const controller = new adminController_1.AdminController(req, res);
-    const response = yield controller.helloUser();
-    console.log(response, "response");
-    response.CatchResponse ? (0, helperFun_1.response_handler)(response.CatchResponse, res) : next(response.CatchError);
-}));
-router.post('/user/create', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/user/create', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
     const response = yield controller.New_Users(req.body);
     console.log(response, "response");
-    response.CatchResponse ? (0, helperFun_1.response_handler)(response.CatchResponse, res) : next(response.CatchError);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
 router.put('/user/update/:id', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
     (0, helperFun_1.object_id_check)(req.params.id, res);
     const response = yield controller.Update_userfun(req.body, req.params.id);
     console.log(response, "response");
-    response.CatchResponse ? (0, helperFun_1.response_handler)(response.CatchResponse, res) : next(response.CatchError);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
 router.delete('/user/delete/:id', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
     (0, helperFun_1.object_id_check)(req.params.id, res);
     const response = yield controller.Delete_Userfun(req.params.id);
     console.log(response, "response");
-    response.CatchResponse ? (0, helperFun_1.response_handler)(response.CatchResponse, res) : next(response.CatchError);
-    // return res.send(response)
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
 router.get('/users', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
     const response = yield controller.User_detailsfun();
     console.log(response, "response");
-    response.CatchResponse ? (0, helperFun_1.response_handler)(response.CatchResponse, res) : next(response.CatchError);
-    // return res.send(response)
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
 router.post('/user/login', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
     console.log(req.body, "admin route side");
     const response = yield controller.UserLoginFun(req.body);
-    response.CatchResponse ? (0, helperFun_1.response_handler)(response.CatchResponse, res) : next(response.CatchError);
-    // console.log(response,"responsegj");
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
-router.get('/users/:id', index_1.default.adminController.SingleUserDetail);
+//  router.get('/users/:id',async(req: Request, res: Response, next: NextFunction)=>{
+//     const controller = new AdminController(req,res)
+//     console.log(req.params.id,"admin route side");
+//     const response = await controller.SingleUserDetail(req.params.id)
+//     response.CatchResponse? response_handler( response.CatchResponse,res): next(response.CatchError)
+//     });
+//--------------------------class routes------------------------------
+router.post('/class/create', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    console.log(req.body, "admin route side");
+    const response = yield controller.addCourse(req.body);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
+router.put('/class/update/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    (0, helperFun_1.object_id_check)(req.params.id, res);
+    console.log(req.body, req.params.id, "admin route side");
+    const response = yield controller.updateClass(req.body, req.params.id);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
+router.delete('/class/delete/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    (0, helperFun_1.object_id_check)(req.params.id, res);
+    console.log(req.params.id, "admin route side");
+    const response = yield controller.deleteClass(req.params.id);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
+router.get('/classes', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    const response = yield controller.get_classes();
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
 module.exports = router;

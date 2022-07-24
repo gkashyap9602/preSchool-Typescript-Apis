@@ -44,8 +44,10 @@ app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 const swaggerDocument = require('../swagger.json');
 // console.log(swaggerDocument);
-app.use('/swagger', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
-// RegisterRoutes(app)
+app.use('/swagger-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument), (err) => {
+    if (err)
+        console.log(" error swagger: ", err);
+});
 app.use("/api/v1", mainRoute_1.default);
 app.use(middleware_1.default.err_create);
 app.use(middleware_1.default.handle_err);

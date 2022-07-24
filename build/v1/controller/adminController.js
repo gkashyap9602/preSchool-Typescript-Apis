@@ -23,40 +23,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminController = void 0;
 const index_1 = require("../../models/index");
-const helperFun_1 = require("../../utils/helperFun");
-// import {} from "../../utils/helperFun";
 const message_1 = require("../../utils/message");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
-const operation_1 = require("../../services/operation");
-const tsoa_1 = require("tsoa");
+const index_2 = __importDefault(require("../../services/index"));
 const auth_1 = require("../../utils/auth");
-// console.log(http,"http");
+const helperFun_1 = require("../../utils/helperFun");
+const tsoa_1 = require("tsoa");
 let refreshTokens = [];
-exports.default = {
-    SingleUserDetail,
-};
 let AdminController = class AdminController extends tsoa_1.Controller {
     constructor(req, res) {
         super();
         this.req = req;
         this.res = res;
-        this.userId = req.body.user ? req.body.user._id : '';
+        this.userId = req.body.user ? req.body.user._id : "";
         this.userRole = req.body.user ? req.body.user.role : null;
     }
-    User_detailsfun() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                console.log(this.userId, "userid token ");
-                const users_details = yield index_1.AdminModels.ModelNewUser.find({ role: 3 }, "father_name mobileNum fname gender");
-                const response = new helperFun_1.resp_Object(message_1.MESSAGES.DATA_RETREIVE_SUCCESSFULLY, http_status_codes_1.default.OK, users_details);
-                return { CatchResponse: response };
-            }
-            catch (error) {
-                return { CatchError: error };
-            }
-        });
-    }
+    ;
     New_Users(request) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -83,17 +66,54 @@ let AdminController = class AdminController extends tsoa_1.Controller {
                 // // Student_Data.student_img = student_img;
                 // assigning a auto generated username to the user
                 Object.assign(body, { username: "PS" + yearcode + usercode });
-                const UserSaved = yield (0, operation_1.create)(body, index_1.AdminModels.ModelNewUser);
-                //   await new AdminModels.ModelNewUser<userInterface>(body).save();
-                const response = new helperFun_1.resp_Object(message_1.MESSAGES.USER_REGISTERED_SUCCESSFULLY, http_status_codes_1.default.CREATED, UserSaved);
-                return { CatchResponse: response };
+                const UserSaved = yield new index_1.AdminModels.ModelNewUser(body).save((err, success) => __awaiter(this, void 0, void 0, function* () {
+                    if (err)
+                        throw err;
+                    const mail = yield index_2.default.mailer(body.email, "Successfull Registration", `Hello ${success.fname + " " + success.lname} You are Registered Successfully`);
+                    // console.log(mail,"maill controller side");
+                    // if(mail.mailError) throw mail.mailError
+                }));
+                return new helperFun_1.resp_Object(message_1.MESSAGES.USER_REGISTERED_SUCCESSFULLY, http_status_codes_1.default.CREATED, UserSaved);
             }
             catch (error) {
-                console.log(error, "err catchhhh side ");
                 return { CatchError: error };
             }
         });
     }
+    ;
+    UserLoginFun(request) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log(request, "request");
+                const { email, password } = request;
+                console.log(email, password, "email passs");
+                // find if user exist or not
+                const Userdata = yield index_1.AdminModels.ModelNewUser.findOne({ email: email });
+                if (!Userdata)
+                    throw new helperFun_1.error_Object(message_1.MESSAGES.USER_NOT_VALID, http_status_codes_1.default.UNAUTHORIZED);
+                const user_id = Userdata._id;
+                if (yield bcrypt_1.default.compare(password, Userdata.password)) {
+                    //generating jwt token
+                    const token = (0, auth_1.genAuthToken)(user_id);
+                    if (!token)
+                        throw new helperFun_1.error_Object(message_1.MESSAGES.TOKEN_NOT_GENERATED, http_status_codes_1.default.NOT_FOUND);
+                    //   console.log(token, "token login side");
+                    refreshTokens.push(token.refresh_token);
+                    return new helperFun_1.resp_Object(message_1.MESSAGES.LOGIN_SUCCESSFULLY, http_status_codes_1.default.ACCEPTED, {
+                        AccessToken: token.Access_token,
+                        RefreshToken: token.refresh_token,
+                    });
+                }
+                else {
+                    throw new helperFun_1.error_Object(message_1.MESSAGES.PASSWORD_NOT_MATCHED, http_status_codes_1.default.UNAUTHORIZED);
+                }
+            }
+            catch (error) {
+                return { CatchError: error };
+            }
+        });
+    }
+    ;
     Update_userfun(request, id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -107,11 +127,9 @@ let AdminController = class AdminController extends tsoa_1.Controller {
                 if (!find)
                     throw new helperFun_1.error_Object(message_1.MESSAGES.DOES_NOT_EXIST, http_status_codes_1.default.EXPECTATION_FAILED);
                 const UserUpdated = yield index_1.AdminModels.ModelNewUser.findByIdAndUpdate(user_id, body, { new: true });
-                const response = new helperFun_1.resp_Object(message_1.MESSAGES.UPDATED_SUCCESSFULLY, http_status_codes_1.default.CREATED);
-                return { CatchResponse: response };
+                return new helperFun_1.resp_Object(message_1.MESSAGES.UPDATED_SUCCESSFULLY, http_status_codes_1.default.CREATED);
             }
             catch (error) {
-                // console.log("something not right" + error);
                 return { CatchError: error };
             }
         });
@@ -125,70 +143,116 @@ let AdminController = class AdminController extends tsoa_1.Controller {
                 if (!find)
                     throw new helperFun_1.error_Object(message_1.MESSAGES.DOES_NOT_EXIST, http_status_codes_1.default.EXPECTATION_FAILED);
                 const deleted = yield index_1.AdminModels.ModelNewUser.findByIdAndDelete(user_id);
-                const response = new helperFun_1.resp_Object(message_1.MESSAGES.DELETED_SUCCESSFULLY, http_status_codes_1.default.ACCEPTED);
-                return { CatchResponse: response };
+                console.log(deleted, "deleted");
+                return new helperFun_1.resp_Object(message_1.MESSAGES.DELETED_SUCCESSFULLY, http_status_codes_1.default.ACCEPTED);
             }
             catch (error) {
-                // console.log("something not right" + error);
                 return { CatchError: error };
             }
         });
     }
-    UserLoginFun(request) {
+    ;
+    User_detailsfun() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(request, "request");
-                const { email, password } = request;
-                console.log(email, password, "email passs");
-                // find if user exist or not
-                const Userdata = yield index_1.AdminModels.ModelNewUser.findOne({ email: email });
-                if (!Userdata)
-                    throw new helperFun_1.error_Object(message_1.MESSAGES.USER_NOT_VALID, http_status_codes_1.default.UNAUTHORIZED);
-                const user_id = Userdata._id;
-                // await bcrypt.compare(request.Lpassword, loginuser.Password)
-                if (yield bcrypt_1.default.compare(password, Userdata.password)) {
-                    //generating jwt token
-                    const token = (0, auth_1.genAuthToken)(user_id);
-                    if (!token)
-                        throw new helperFun_1.error_Object(message_1.MESSAGES.TOKEN_NOT_GENERATED, http_status_codes_1.default.NOT_FOUND);
-                    //   console.log(token, "token login side");
-                    refreshTokens.push(token.refresh_token);
-                    const response = new helperFun_1.resp_Object(message_1.MESSAGES.LOGIN_SUCCESSFULLY, http_status_codes_1.default.ACCEPTED, {
-                        AccessToken: token.Access_token,
-                        RefreshToken: token.refresh_token,
-                    });
-                    return { CatchResponse: response };
-                }
-                else {
-                    throw new helperFun_1.error_Object(message_1.MESSAGES.PASSWORD_NOT_MATCHED, http_status_codes_1.default.UNAUTHORIZED);
-                }
+                console.log(this.userId, "userid token ");
+                const users_details = yield index_1.AdminModels.ModelNewUser.find({ role: 3 }, "father_name mobileNum fname gender");
+                return new helperFun_1.resp_Object(message_1.MESSAGES.DATA_RETREIVE_SUCCESSFULLY, http_status_codes_1.default.OK, users_details);
             }
             catch (error) {
                 return { CatchError: error };
             }
         });
     }
-    helloUser() {
+    ;
+    // @Security("Bearer")
+    // @Get("/users/{id}")
+    // public async SingleUserDetail(paramsId:string) {
+    //  try {
+    //   const user_id = paramsId
+    //   const userdata = await AdminModels.ModelNewUser.find(
+    //     { _id: user_id },
+    //     { password: 0 }
+    //   );
+    //   const response = new resp_Object(
+    //     MESSAGES.DATA_RETREIVE_SUCCESSFULLY,
+    //     http.OK,
+    //     userdata
+    //   );
+    //   return { CatchResponse: response };
+    // } catch (error) {
+    //   return { CatchError: error };
+    // }
+    // };
+    //--------------class functions-------------------------------
+    addCourse(request) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = new helperFun_1.resp_Object("Hello User Authenticated Successfully", 202);
-                return { CatchResponse: response };
+                let Class_Data = request;
+                const FindClass = yield index_1.AdminModels.ModelNewCource.findOne({ Class: Class_Data.Class });
+                if (FindClass)
+                    throw new helperFun_1.error_Object(message_1.MESSAGES.CLASS_ALREADY_REGISTERED, http_status_codes_1.default.CONFLICT);
+                const ClassRegistered = yield new index_1.AdminModels.ModelNewCource(Class_Data).save();
+                return new helperFun_1.resp_Object(message_1.MESSAGES.CLASS_REGISTERED_SUCCESSFULLY, http_status_codes_1.default.CREATED);
             }
             catch (error) {
                 return { CatchError: error };
             }
         });
     }
+    ;
+    updateClass(request, id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const updates = request;
+                const options = { new: true };
+                const result = yield index_1.AdminModels.ModelNewCource.findByIdAndUpdate(id, updates, options);
+                if (!result)
+                    throw new helperFun_1.error_Object(message_1.MESSAGES.DOES_NOT_EXIST, http_status_codes_1.default.NOT_FOUND);
+                return new helperFun_1.resp_Object(message_1.MESSAGES.CLASS_UPDATED_SUCCESSFULLY, http_status_codes_1.default.NO_CONTENT, result);
+            }
+            catch (error) {
+                return { CatchError: error };
+            }
+        });
+    }
+    ;
+    deleteClass(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield index_1.AdminModels.ModelNewCource.deleteOne({ _id: id });
+                console.log(data, "data..");
+                if (!data)
+                    throw new helperFun_1.error_Object(message_1.MESSAGES.DOES_NOT_EXIST, http_status_codes_1.default.BAD_REQUEST);
+                return new helperFun_1.resp_Object(message_1.MESSAGES.DELETED_SUCCESSFULLY, http_status_codes_1.default.NO_CONTENT);
+            }
+            catch (error) {
+                return { CatchError: error };
+            }
+        });
+    }
+    ;
+    get_classes() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const get_classes = yield index_1.AdminModels.ModelNewCource.find({}, { addmission_fee: 0, monthly_fee: 0 });
+                return new helperFun_1.resp_Object(message_1.MESSAGES.DATA_RETREIVE_SUCCESSFULLY, http_status_codes_1.default.OK, get_classes);
+            }
+            catch (error) {
+                return { CatchError: error };
+            }
+        });
+    }
+    ;
 };
 __decorate([
-    (0, tsoa_1.Security)("Bearer"),
-    (0, tsoa_1.Get)("/users")
-], AdminController.prototype, "User_detailsfun", null);
-__decorate([
-    (0, tsoa_1.Security)("Bearer"),
     (0, tsoa_1.Post)("/user/create"),
     __param(0, (0, tsoa_1.Body)())
 ], AdminController.prototype, "New_Users", null);
+__decorate([
+    (0, tsoa_1.Post)("/user/login"),
+    __param(0, (0, tsoa_1.Body)())
+], AdminController.prototype, "UserLoginFun", null);
 __decorate([
     (0, tsoa_1.Security)("Bearer"),
     (0, tsoa_1.Put)("/user/update/:id"),
@@ -199,28 +263,30 @@ __decorate([
     (0, tsoa_1.Delete)("/user/delete/:id")
 ], AdminController.prototype, "Delete_Userfun", null);
 __decorate([
-    (0, tsoa_1.Post)("/user/login"),
-    __param(0, (0, tsoa_1.Body)())
-], AdminController.prototype, "UserLoginFun", null);
+    (0, tsoa_1.Security)("Bearer"),
+    (0, tsoa_1.Get)("/users")
+], AdminController.prototype, "User_detailsfun", null);
 __decorate([
     (0, tsoa_1.Security)("Bearer"),
-    (0, tsoa_1.Get)("/hello")
-], AdminController.prototype, "helloUser", null);
+    (0, tsoa_1.Post)("/class/create"),
+    __param(0, (0, tsoa_1.Body)())
+], AdminController.prototype, "addCourse", null);
+__decorate([
+    (0, tsoa_1.Security)("Bearer"),
+    (0, tsoa_1.Put)("class/update/:id"),
+    __param(0, (0, tsoa_1.Body)())
+], AdminController.prototype, "updateClass", null);
+__decorate([
+    (0, tsoa_1.Security)('Bearer'),
+    (0, tsoa_1.Delete)('/class/delete/:id')
+], AdminController.prototype, "deleteClass", null);
+__decorate([
+    (0, tsoa_1.Security)('Bearer'),
+    (0, tsoa_1.Get)('/classes')
+], AdminController.prototype, "get_classes", null);
 AdminController = __decorate([
     (0, tsoa_1.Tags)("Admin"),
     (0, tsoa_1.Route)("/admin")
 ], AdminController);
 exports.AdminController = AdminController;
-function SingleUserDetail(req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const user_id = req.params.id;
-            const userdata = yield index_1.AdminModels.ModelNewUser.find({ _id: user_id }, { password: 0 });
-            const response = new helperFun_1.resp_Object(message_1.MESSAGES.DATA_RETREIVE_SUCCESSFULLY, http_status_codes_1.default.OK, userdata);
-            res.send(response);
-        }
-        catch (error) {
-            next(error);
-        }
-    });
-}
+;
