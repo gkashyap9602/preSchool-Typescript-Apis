@@ -6,7 +6,10 @@ import { MESSAGES } from "../../utils/message";
 import bcrypt from "bcrypt";
 import http from "http-status-codes";
 import Services from "../../services/index"
+import { refresh_token_SecretKey } from "../../config/config"
+import jwt from "jsonwebtoken"
 import { genAuthToken, random_Otpfun } from "../../utils/auth";
+import mongoose from "mongoose"
 import {
 	error_Object,
 	resp_Object,
@@ -20,11 +23,14 @@ import {
 	Post,
 	Put,
 	Delete,
+	Query,
+	Path,
 	Tags,
 	Body,
 	Security,
 	Example,
 } from "tsoa";
+import { put } from "../routes/userRoutes";
 
 let refreshTokens: any = [];
 
@@ -42,24 +48,9 @@ export class AdminController extends Controller {
 		this.userId = req.body.user ? req.body.user._id : "";
 		this.userRole = req.body.user ? req.body.user.role : null;
 	};
-	
+
 	@Post("/user/create")
-	public async New_Users(
-		@Body()
-		request: {
-			role: number;
-			fname: string;
-			lname: string;
-			email: string;
-			mobileNum: number;
-			password: string;
-			gender: string;
-			username: string;
-			father_name: string;
-			mother_name: string;
-			religion: string;
-		}
-	): Promise<responseType | any> {
+	public async New_Users(@Body() request: { role: number; fname: string; lname: string; email: string; mobileNum: number; password: string; gender: string; username: string; father_name: string; mother_name: string; religion: string; }): Promise<responseType | any> {
 		try {
 			const salt = await bcrypt.genSalt(10);
 			const body = request;
@@ -126,25 +117,25 @@ export class AdminController extends Controller {
 
 			if (await bcrypt.compare(password, Userdata.password)) {
 
-				if(Userdata.role === 1){
-                     //generating jwt token
-				const token = genAuthToken(user_id);
-				if (!token)
-					throw new error_Object(MESSAGES.TOKEN_NOT_GENERATED, http.NOT_FOUND);
-				//   console.log(token, "token login side");
-				refreshTokens.push(token.refresh_token);
+				if (Userdata.role === 1) {
+					//generating jwt token
+					const token = genAuthToken(user_id);
+					if (!token)
+						throw new error_Object(MESSAGES.TOKEN_NOT_GENERATED, http.NOT_FOUND);
+					//   console.log(token, "token login side");
+					refreshTokens.push(token.refresh_token);
 
-				return new resp_Object(MESSAGES.LOGIN_SUCCESSFULLY, http.ACCEPTED, {
-					AccessToken: token.Access_token,
-					RefreshToken: token.refresh_token,
-				});
-				}else{
+					return new resp_Object(MESSAGES.LOGIN_SUCCESSFULLY, http.ACCEPTED, {
+						AccessToken: token.Access_token,
+						RefreshToken: token.refresh_token,
+					});
+				} else {
 					throw new error_Object(
 						MESSAGES.YOU_ARE_NOT_ADMIN,
 						http.UNAUTHORIZED
 					);
 				}
-				
+
 			} else {
 				throw new error_Object(
 					MESSAGES.PASSWORD_NOT_MATCHED,
@@ -158,21 +149,7 @@ export class AdminController extends Controller {
 
 	@Security("Bearer")
 	@Put("/user/update/:id")
-	public async Update_userfun(
-		@Body()
-		request: {
-			role: number;
-			fname: string;
-			lname: string;
-			email: string;
-			mobileNum: number;
-			password: string;
-			gender: string;
-			father_name: string;
-			religion: string;
-		},
-		id: string
-	): Promise<responseType | any> {
+	public async Update_userfun(@Body() request: { role: number; fname: string; lname: string; email: string; mobileNum: number; password: string; gender: string; father_name: string; religion: string; }, id: string): Promise<responseType | any> {
 		try {
 			const user_id = id;
 			console.log(user_id, "idd");
@@ -247,7 +224,7 @@ export class AdminController extends Controller {
 
 	// @Security("Bearer")
 	// @Get("/users/{id}")
-	// public async SingleUserDetail(paramsId:string) {
+	// public async SingleUserDetail(@Path() paramsId:string) {
 	//  try {
 	//   const user_id = paramsId
 	//   const userdata = await AdminModels.ModelNewUser.find(
@@ -265,81 +242,177 @@ export class AdminController extends Controller {
 	// }
 
 	// };
-//--------------class functions-------------------------------
-@Security("Bearer")
-@Post("/class/create")
-public async addCourse(
-  @Body()
-  request: {
-	Class: number;
-	Class_Code: string;
-	Admission_Fee: number;
-	Monthly_Fee : number;
-  }
-): Promise<responseType | any> {
-  try {
-	
-	let Class_Data = request;
-    const FindClass = await AdminModels.ModelNewCource.findOne({ Class: Class_Data.Class});
-    if (FindClass) throw new error_Object(MESSAGES.CLASS_ALREADY_REGISTERED,http.CONFLICT)
+	//--------------class functions-------------------------------
+	@Security("Bearer")
+	@Post("/class/create")
+	public async addCourse(@Body() request: { Class: number; Class_Code: string; Admission_Fee: number; Monthly_Fee: number; }): Promise<responseType | any> {
+		try {
 
-    const ClassRegistered = await new AdminModels.ModelNewCource(Class_Data).save();
-	
-	return new resp_Object(MESSAGES.CLASS_REGISTERED_SUCCESSFULLY , http.CREATED)
-  } catch (error) {
-	return { CatchError: error };
-  }
-};
+			let Class_Data = request;
+			const FindClass = await AdminModels.ModelNewCource.findOne({ Class: Class_Data.Class });
+			if (FindClass) throw new error_Object(MESSAGES.CLASS_ALREADY_REGISTERED, http.CONFLICT)
 
-@Security("Bearer")
-@Put("class/update/:id")
-  public async updateClass(
-    @Body()
-    request: {
-      Class: number;
-      Admission_Fee: number;
-      Class_Code: string;
-      Monthly_Fee: number;
-    },
-    id:string
-  ): Promise<responseType | any> {
-    try {
-      const updates = request;
-      const options = { new: true };
-      const result = await AdminModels.ModelNewCource.findByIdAndUpdate(id, updates, options);
-      if (!result) throw new error_Object(MESSAGES.DOES_NOT_EXIST, http.NOT_FOUND);
-    
-      return new resp_Object(MESSAGES.CLASS_UPDATED_SUCCESSFULLY,http.NO_CONTENT, result);
-    } catch (error) {
-      return { CatchError: error };
-    }
-  };
+			const ClassRegistered = await new AdminModels.ModelNewCource(Class_Data).save();
 
-  @Security('Bearer')
-  @Delete('/class/delete/:id')
-  public async deleteClass(id: string): Promise<responseType | any> {
-    try {
-      const data = await AdminModels.ModelNewCource.deleteOne({ _id: id });
-	  console.log(data,"data..");
-      if (!data) throw new error_Object(MESSAGES.DOES_NOT_EXIST,http.BAD_REQUEST);
-      return new resp_Object(MESSAGES.DELETED_SUCCESSFULLY,http.NO_CONTENT);
-    } catch (error) {
-      return { CatchError: error };
-    }
-  };
+			return new resp_Object(MESSAGES.CLASS_REGISTERED_SUCCESSFULLY, http.CREATED)
+		} catch (error) {
+			return { CatchError: error };
+		}
+	};
 
-  @Security('Bearer')
-  @Get('/classes')
-  public async get_classes():Promise<responseType | any>{
-	try {
-		const get_classes = await AdminModels.ModelNewCource.find({},{ addmission_fee: 0, monthly_fee: 0 });
-	
-     	return new resp_Object(MESSAGES.DATA_RETREIVE_SUCCESSFULLY,http.OK,get_classes)
-		
-	  } catch (error) {
-		return {CatchError:error}
-	  }
-  };
+	@Security("Bearer")
+	@Put("class/update/:id")
+	public async updateClass(@Body() request: { Class: number; Admission_Fee: number; Class_Code: string; Monthly_Fee: number; }, id: string): Promise<responseType | any> {
+		try {
+			const updates = request;
+			const options = { new: true };
+			const result = await AdminModels.ModelNewCource.findByIdAndUpdate(id, updates, options);
+			if (!result) throw new error_Object(MESSAGES.DOES_NOT_EXIST, http.NOT_FOUND);
 
+			return new resp_Object(MESSAGES.CLASS_UPDATED_SUCCESSFULLY, http.NO_CONTENT, result);
+		} catch (error) {
+			return { CatchError: error };
+		}
+	};
+
+	@Security('Bearer')
+	@Delete('/class/delete/:id')
+	public async deleteClass(id: string): Promise<responseType | any> {
+		try {
+			const data = await AdminModels.ModelNewCource.deleteOne({ _id: id });
+			console.log(data, "data..");
+			if (!data) throw new error_Object(MESSAGES.DOES_NOT_EXIST, http.BAD_REQUEST);
+			return new resp_Object(MESSAGES.DELETED_SUCCESSFULLY, http.NO_CONTENT);
+		} catch (error) {
+			return { CatchError: error };
+		}
+	};
+
+	@Security('Bearer')
+	@Get('/classes')
+	public async get_classes(): Promise<responseType | any> {
+		try {
+			const get_classes = await AdminModels.ModelNewCource.find({}, { addmission_fee: 0, monthly_fee: 0 });
+
+			return new resp_Object(MESSAGES.DATA_RETREIVE_SUCCESSFULLY, http.OK, get_classes)
+
+		} catch (error) {
+			return { CatchError: error }
+		}
+	};
+	//---------------------------student functions ------------------------------//
+	@Security('Bearer')
+	@Post('/student/create')
+	public async Add_Student(@Body() request: { userId: string, classId: string, IsActive: Boolean }): Promise<responseType | any> {
+		try {
+			const body = request
+			const FindClass = await AdminModels.ModelNewCource.findById({ _id: body.classId });
+			//  console.log(className);
+			if (!FindClass) throw new error_Object(MESSAGES.INVALID_ID_OR_DATA_DOES_NOT_EXIST, http.NOT_FOUND)
+			const ClassName = FindClass.Class;
+
+			const finduser = await AdminModels.ModelNewStudent.find({
+				user_id: body.userId,
+				class_id: body.classId,
+			});
+			// console.log(finduser, "find user");
+			if (finduser.length > 0) {
+				console.log("already");
+				throw new error_Object(MESSAGES.STUDENT_ALREADY_REGISTERED_WITH_SAME_CLASS, http.CONFLICT)
+			} else {
+				const ClassCount = await AdminModels.ModelNewStudent.find({
+					class_id: body.classId,
+				}).count();
+				// console.log(countt,"same class count");
+
+				Object.assign(body, { roll_num: ClassName * 1000 + 1 + ClassCount });
+				const Store_Student = await new AdminModels.ModelNewStudent(body).save();
+				return new resp_Object(MESSAGES.STUDENT_REGISTERED_SUCCESSFULLY, http.CREATED, Store_Student)
+
+			}
+		} catch (error) {
+			return { CatchError: error }
+
+		}
+	};
+
+	@Security('Bearer')
+	@Put('/student/update/:id')
+	public async updateStudent(@Body() request: { class_id: string; user_id: string; }, id: string): Promise<responseType | any> {
+		try {
+			const updates = request;
+			const result = await AdminModels.ModelNewStudent.findByIdAndUpdate(id, updates, { new: true });
+			if (!result) throw new error_Object(MESSAGES.INVALID_ID_OR_DATA_DOES_NOT_EXIST, http.NOT_FOUND);
+
+			return new resp_Object(MESSAGES.STUDENT_UPDATED_SUCCESSFULLY, http.NO_CONTENT, result);
+		} catch (error) {
+			return { CatchError: error }
+
+		}
+	};
+
+	@Security('Bearer')
+	@Delete('/student/delete/:id')
+	public async deleteStudent(id: string): Promise<responseType | any> {
+		try {
+
+			const UserDeleted = await AdminModels.ModelNewStudent.findByIdAndUpdate(id, { IsActive: false }, { new: true });
+			// const data = await AdminModels.ModelNewStudent.deleteOne({ _id: id });
+			if (!UserDeleted) throw new error_Object(MESSAGES.INVALID_ID_OR_DATA_DOES_NOT_EXIST, http.NOT_FOUND);
+			return new resp_Object(MESSAGES.STUDENT_DELETED_SUCCESSFULLY, http.NO_CONTENT);
+		} catch (error) {
+			return { CatchError: error }
+
+		}
+	};
+
+	//   @Security('Bearer')
+	//   @Get('/students')
+	//   public async get_Students(
+	// 	@Query() request: { page: number|any; size: number | any }): Promise<responseType | any> {
+	// 	try {
+	// 	  let { page, size } = request;
+	// 	  if (!page) {
+	// 		page = 1;
+	// 	  }
+	// 	  if (!size) {
+	// 		size = 2;
+	// 	  }
+	// 	  const limit = parseInt(size);
+	// 	  const skip = (page - 1) * size;
+	// 	  const fetchdata = await AdminModels.ModelNewUser.find({ role: 3,IsActive:true })
+	// 		.limit(limit)
+	// 		.skip(skip)
+	// 		.sort({ updatedAt: -1 });
+	// 	  return new resp_Object("Student Data", 200, fetchdata);
+	// 	} catch (error) {
+	// 	  return { errors: error };
+	// 	}
+	//   }
+
+	//--------------------refresh token-----------------------------
+	@Security('Bearer')
+	@Post('/login/refreshtoken')
+	public async renew_token(@Body() request: { refresh_token: string }): Promise<responseType | any> {
+		try {
+			const { refresh_token } = request
+			console.log(refresh_token);
+
+			if (refresh_token || refreshTokens.includes(refresh_token)) {
+				const verify: any = jwt.verify(refresh_token, refresh_token_SecretKey)
+				if (!verify) new error_Object("token not generated", 404)
+				console.log(typeof verify, "verifyyyy");
+				const New_Access_token = genAuthToken(verify._id);
+				if (New_Access_token) {
+					return new resp_Object(MESSAGES.TOKEN_GENERATED_SUCCESSFULLY, http.CREATED, { New_Access_token: New_Access_token.Access_token })
+				}
+			}
+		} catch (error) {
+			console.log(error, "catch side err");
+
+			return { CatchError: error }
+
+		}
+	};
 
 };

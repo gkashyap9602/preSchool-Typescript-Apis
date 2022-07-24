@@ -54,22 +54,22 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 //     });
 //--------------------------class routes------------------------------
 
-router.post('/class/create',async (req: Request, res: Response, next: NextFunction) => {
+router.post('/class/create', verify_token, async (req: Request, res: Response, next: NextFunction) => {
     const controller = new AdminController(req, res)
     console.log(req.body, "admin route side");
     const response = await controller.addCourse(req.body)
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
 
 });
-router.put('/class/update/:id',async (req: Request, res: Response, next: NextFunction) => {
+router.put('/class/update/:id', verify_token, async (req: Request, res: Response, next: NextFunction) => {
     const controller = new AdminController(req, res)
     object_id_check(req.params.id, res);
-    console.log(req.body,req.params.id, "admin route side");
-    const response = await controller.updateClass(req.body,req.params.id)
+    console.log(req.body, req.params.id, "admin route side");
+    const response = await controller.updateClass(req.body, req.params.id)
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
 
 });
-router.delete('/class/delete/:id',async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/class/delete/:id', verify_token, async (req: Request, res: Response, next: NextFunction) => {
     const controller = new AdminController(req, res)
     object_id_check(req.params.id, res);
     console.log(req.params.id, "admin route side");
@@ -77,12 +77,49 @@ router.delete('/class/delete/:id',async (req: Request, res: Response, next: Next
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
 
 });
-router.get('/classes',async (req: Request, res: Response, next: NextFunction) => {
+router.get('/classes', verify_token, async (req: Request, res: Response, next: NextFunction) => {
     const controller = new AdminController(req, res)
     const response = await controller.get_classes()
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
 
 });
+//-------------------student routes-----------------------------
+router.post('/student/create', verify_token, async (req: Request, res: Response, next: NextFunction) => {
+    const controller = new AdminController(req, res)
+    const response = await controller.Add_Student(req.body)
+    response.CatchError ? next(response.CatchError) : response_handler(response, res)
 
+});
+router.put('/student/update/:id', verify_token, async (req: Request, res: Response, next: NextFunction) => {
+    const controller = new AdminController(req, res)
+    object_id_check(req.params.id, res);
+    const response = await controller.updateStudent(req.body, req.params.id)
+    response.CatchError ? next(response.CatchError) : response_handler(response, res)
+
+});
+router.delete('/student/delete/:id', verify_token, async (req: Request, res: Response, next: NextFunction) => {
+    const controller = new AdminController(req, res)
+    object_id_check(req.params.id, res);
+    console.log(req.params.id, "admin route side");
+    const response = await controller.deleteStudent(req.params.id)
+    response.CatchError ? next(response.CatchError) : response_handler(response, res)
+
+});
+// router.get('/students',async (req: Request, res: Response, next: NextFunction) => {
+//     const controller = new AdminController(req, res)
+//     // if(!req.query) throw res.send("please enter data")
+//     const {page,size} = req.query
+//     const pagination = {page,size}
+//     const response = await controller.get_Students(pagination)
+//     response.CatchError ? next(response.CatchError) : response_handler(response, res)
+
+// });
+router.post('/login/refreshtoken', async (req: Request, res: Response, next: NextFunction) => {
+    const controller = new AdminController(req, res)
+    console.log(req.body.refresh_token, "admin route side");
+    const response = await controller.renew_token(req.body)
+    response.CatchError ? next(response.CatchError) : response_handler(response, res)
+
+});
 
 export = router;
