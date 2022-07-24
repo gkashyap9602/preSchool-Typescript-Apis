@@ -16,6 +16,7 @@
     CLASS_ALREADY_REGISTERED: "Class Already Registered",
     CLASS_REGISTERED_SUCCESSFULLY : "Class Registered Successfully",
     CLASS_UPDATED_SUCCESSFULLY : "Class Updated Successfully",
+    YOU_ARE_NOT_ADMIN : "You Are Not Admin"
 
 }
 

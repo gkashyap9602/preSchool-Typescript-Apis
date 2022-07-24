@@ -134,9 +134,9 @@
 				}
 			}
 		},
-		"/admin/user/login": {
+		"/admin/login": {
 			"post": {
-				"operationId": "UserLoginFun",
+				"operationId": "AdminLoginFun",
 				"responses": {
 					"200": {
 						"description": "Ok",

@@ -38,10 +38,10 @@ router.get('/users', verify_token, async (req: Request, res: Response, next: Nex
 
 });
 
-router.post('/user/login', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
     const controller = new AdminController(req, res)
     console.log(req.body, "admin route side");
-    const response = await controller.UserLoginFun(req.body)
+    const response = await controller.AdminLoginFun(req.body)
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
 
 });

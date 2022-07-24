@@ -109,8 +109,8 @@ export class AdminController extends Controller {
 		}
 	};
 
-	@Post("/user/login")
-	public async UserLoginFun(
+	@Post("/login")
+	public async AdminLoginFun(
 		@Body() request: { password: string; email: string }
 	): Promise<responseType | any> {
 		try {
@@ -125,7 +125,9 @@ export class AdminController extends Controller {
 			const user_id = Userdata._id;
 
 			if (await bcrypt.compare(password, Userdata.password)) {
-				//generating jwt token
+
+				if(Userdata.role === 1){
+                     //generating jwt token
 				const token = genAuthToken(user_id);
 				if (!token)
 					throw new error_Object(MESSAGES.TOKEN_NOT_GENERATED, http.NOT_FOUND);
@@ -136,6 +138,13 @@ export class AdminController extends Controller {
 					AccessToken: token.Access_token,
 					RefreshToken: token.refresh_token,
 				});
+				}else{
+					throw new error_Object(
+						MESSAGES.YOU_ARE_NOT_ADMIN,
+						http.UNAUTHORIZED
+					);
+				}
+				
 			} else {
 				throw new error_Object(
 					MESSAGES.PASSWORD_NOT_MATCHED,
