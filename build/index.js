@@ -52,18 +52,22 @@ app.listen(config_1.port, () => {
     console.log(`port is running on ${config_1.port}`);
 });
 connection_1.default.connection();
+app.use(function (req, res, next) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Credentials", 1);
+    res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT,DELETE");
+    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,authtoken");
+    next();
+});
 app.use(express_1.default.json());
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
-app.use((0, cors_1.default)({
-    origin: "http://localhost:3000"
-}));
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header('Access-Control-Allow-Methods', 'DELETE, PUT, GET, POST');
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
+// app.use(cors(
+// 	{
+// 		origin:"http://localhost:3000"
+// 	}
+// ));
+app.use((0, cors_1.default)());
 const swaggerDocument = require('../swagger.json');
 // console.log(swaggerDocument);
 app.use('/swagger-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument), (err) => {

@@ -27,8 +27,6 @@ const message_1 = require("../../utils/message");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const index_2 = __importDefault(require("../../services/index"));
-const config_1 = require("../../config/config");
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const auth_1 = require("../../utils/auth");
 const helperFun_1 = require("../../utils/helperFun");
 const tsoa_1 = require("tsoa");
@@ -196,6 +194,8 @@ let AdminController = class AdminController extends tsoa_1.Controller {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let Class_Data = request;
+                if (!Class_Data)
+                    throw new helperFun_1.error_Object("please enter data", 404);
                 const FindClass = yield index_1.AdminModels.ModelNewCource.findOne({ Class: Class_Data.Class });
                 if (FindClass)
                     throw new helperFun_1.error_Object(message_1.MESSAGES.CLASS_ALREADY_REGISTERED, http_status_codes_1.default.CONFLICT);
@@ -344,12 +344,18 @@ let AdminController = class AdminController extends tsoa_1.Controller {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { refresh_token } = request;
-                console.log(refresh_token);
+                if (!refresh_token)
+                    throw new helperFun_1.error_Object("please enter data", 404);
+                console.log(refresh_token, "controller side");
                 if (refresh_token || refreshTokens.includes(refresh_token)) {
-                    const verify = jsonwebtoken_1.default.verify(refresh_token, config_1.refresh_token_SecretKey);
-                    if (!verify)
-                        new helperFun_1.error_Object("token not generated", 404);
-                    console.log(typeof verify, "verifyyyy");
+                    const verify = yield (0, auth_1.verify_refresh_token)(refresh_token);
+                    // const verify: any =  jwt.verify(refresh_token, refresh_token_SecretKey)
+                    if (verify.verify_err) {
+                        console.log(verify.verify_err, "verify_err sideeeeeeeeeeee");
+                        throw verify.verify_err;
+                    }
+                    // new error_Object("invalid token please check", 422)
+                    console.log(verify, "verifyyyy");
                     const New_Access_token = (0, auth_1.genAuthToken)(verify._id);
                     if (New_Access_token) {
                         return new helperFun_1.resp_Object(message_1.MESSAGES.TOKEN_GENERATED_SUCCESSFULLY, http_status_codes_1.default.CREATED, { NewAccesstoken: New_Access_token.Access_token });

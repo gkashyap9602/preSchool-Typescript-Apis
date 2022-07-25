@@ -8,14 +8,15 @@ import { MESSAGES } from "../utils/message"
 export {
 	verify_token,
 	genAuthToken,
-	random_Otpfun
+	random_Otpfun,
+	verify_refresh_token
 
 }
 
 // Generate jwt token each time
 function genAuthToken(_id: string | Types.ObjectId) {
 	try {
-		const Access_token = jwt.sign({ _id: _id }, Access_token_SecretKey, { expiresIn: "1m" });
+		const Access_token = jwt.sign({ _id: _id }, Access_token_SecretKey, { expiresIn: "60s" });
 		//   console.log(Access_token, "Access token generated ");
 		const refresh_token = jwt.sign({ _id: _id }, refresh_token_SecretKey, { expiresIn: "7d" });
 		//   console.log(refresh_token, "Refresh token generated ");
@@ -41,6 +42,26 @@ function verify_token(req: Request, res: Response, next: NextFunction) {
 		next();
 	});
 }
+
+// Verification of jwt token
+async function verify_refresh_token(token:string) {
+	try {
+		if (!token) throw { message: "Please Enter Access Token" }
+	    console.log(token + "verify side token");
+
+	const verified:any =  jwt.verify(token, refresh_token_SecretKey)
+	if (!verified) throw { message: "token not valid or expire", Status_Code: 401 }
+      return verified._id
+	} catch (error) {
+		const resp ={
+			messsage:"token not verified please check token",
+			Status_Code : 422
+		}
+		return {verify_err:resp}
+	}
+	
+}
+
 
 
 function random_Otpfun() {

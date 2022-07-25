@@ -25,23 +25,30 @@ const app = express();
 app.listen(port, () => {
 	console.log(`port is running on ${port}`);
 });
-
 connect.connection()
+
+app.use(function(req, res, next) {
+	res.setHeader("Access-Control-Allow-Origin", "*");
+	res.setHeader("Access-Control-Allow-Credentials", 1);
+	res.setHeader(
+	  "Access-Control-Allow-Methods",
+	  "GET,HEAD,OPTIONS,POST,PUT,DELETE"
+	);
+	res.setHeader(
+	  "Access-Control-Allow-Headers",
+	  "Origin, X-Requested-With, Content-Type, Accept,authtoken"
+	);
+	next();
+  });
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors(
-	{
-		origin:"http://localhost:3000"
-	}
-));
-
-app.use(function(req:Request, res:Response, next:NextFunction) {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header('Access-Control-Allow-Methods', 'DELETE, PUT, GET, POST');
-	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-	next();
- });
+// app.use(cors(
+// 	{
+// 		origin:"http://localhost:3000"
+// 	}
+// ));
+app.use(cors())
 
 const swaggerDocument = require('../swagger.json')
 // console.log(swaggerDocument);

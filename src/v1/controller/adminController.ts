@@ -8,7 +8,7 @@ import http from "http-status-codes";
 import Services from "../../services/index"
 import { refresh_token_SecretKey } from "../../config/config"
 import jwt from "jsonwebtoken"
-import { genAuthToken, random_Otpfun } from "../../utils/auth";
+import { genAuthToken, random_Otpfun ,verify_refresh_token} from "../../utils/auth";
 import mongoose from "mongoose"
 import {
 	error_Object,
@@ -249,6 +249,8 @@ export class AdminController extends Controller {
 		try {
 
 			let Class_Data = request;
+			if(!Class_Data) throw new error_Object("please enter data",404)
+
 			const FindClass = await AdminModels.ModelNewCource.findOne({ Class: Class_Data.Class });
 			if (FindClass) throw new error_Object(MESSAGES.CLASS_ALREADY_REGISTERED, http.CONFLICT)
 
@@ -395,12 +397,19 @@ export class AdminController extends Controller {
 	public async renew_token(@Body() request: { refresh_token: string }): Promise<responseType | any> {
 		try {
 			const { refresh_token } = request
-			console.log(refresh_token);
+			if(!refresh_token) throw new error_Object("please enter data",404)
+			console.log(refresh_token,"controller side");
 
 			if (refresh_token || refreshTokens.includes(refresh_token)) {
-				const verify: any = jwt.verify(refresh_token, refresh_token_SecretKey)
-				if (!verify) new error_Object("token not generated", 404)
-				console.log(typeof verify, "verifyyyy");
+				const verify: any =  await verify_refresh_token(refresh_token)
+				// const verify: any =  jwt.verify(refresh_token, refresh_token_SecretKey)
+				if (verify.verify_err) {
+					console.log(verify.verify_err,"verify_err sideeeeeeeeeeee");
+					
+					throw verify.verify_err
+				}
+				// new error_Object("invalid token please check", 422)
+				console.log(verify, "verifyyyy");
 				const New_Access_token = genAuthToken(verify._id);
 				if (New_Access_token) {
 					return new resp_Object(MESSAGES.TOKEN_GENERATED_SUCCESSFULLY, http.CREATED, { NewAccesstoken: New_Access_token.Access_token })
