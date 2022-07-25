@@ -366,28 +366,28 @@ export class AdminController extends Controller {
 		}
 	};
 
-	//   @Security('Bearer')
-	//   @Get('/students')
-	//   public async get_Students(@Query() page: number|any,@Query() size: number | any ): Promise<responseType | any> {
-	// 	try {
-	// 	  let { page, size } = request;
-	// 	  if (!page) {
-	// 		page = 1;
-	// 	  }
-	// 	  if (!size) {
-	// 		size = 2;
-	// 	  }
-	// 	  const limit = parseInt(size);
-	// 	  const skip = (page - 1) * size;
-	// 	  const fetchdata = await AdminModels.ModelNewUser.find({ role: 3,IsActive:true })
-	// 		.limit(limit)
-	// 		.skip(skip)
-	// 		.sort({ updatedAt: -1 });
-	// 	  return new resp_Object("Student Data", 200, fetchdata);
-	// 	} catch (error) {
-	// 	  return { errors: error };
-	// 	}
-	//   }
+	  @Security('Bearer')
+	  @Get('/students')
+	  public async get_Students(@Query() page: number|any,@Query() size: number | any ): Promise<responseType | any> {
+		try {
+		//   let { page, size } 
+		  if (!page) {
+			page = 1;
+		  }
+		  if (!size) {
+			size = 2;
+		  }
+		  const limit = parseInt(size);
+		  const skip = (page - 1) * size;
+		  const fetchdata = await AdminModels.ModelNewStudent.find({ IsActive:true })
+			.limit(limit)
+			.skip(skip)
+			.sort({ updatedAt: -1 });
+		  return new resp_Object("Student Data", 200, fetchdata);
+		} catch (error) {
+		  return { errors: error };
+		}
+	  }
 
 	//--------------------refresh token-----------------------------
 	@Security('Bearer')

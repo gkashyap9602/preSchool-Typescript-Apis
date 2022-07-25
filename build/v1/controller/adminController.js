@@ -316,28 +316,29 @@ let AdminController = class AdminController extends tsoa_1.Controller {
         });
     }
     ;
-    //   @Security('Bearer')
-    //   @Get('/students')
-    //   public async get_Students(@Query() page: number|any,@Query() size: number | any ): Promise<responseType | any> {
-    // 	try {
-    // 	  let { page, size } = request;
-    // 	  if (!page) {
-    // 		page = 1;
-    // 	  }
-    // 	  if (!size) {
-    // 		size = 2;
-    // 	  }
-    // 	  const limit = parseInt(size);
-    // 	  const skip = (page - 1) * size;
-    // 	  const fetchdata = await AdminModels.ModelNewUser.find({ role: 3,IsActive:true })
-    // 		.limit(limit)
-    // 		.skip(skip)
-    // 		.sort({ updatedAt: -1 });
-    // 	  return new resp_Object("Student Data", 200, fetchdata);
-    // 	} catch (error) {
-    // 	  return { errors: error };
-    // 	}
-    //   }
+    get_Students(page, size) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                //   let { page, size } 
+                if (!page) {
+                    page = 1;
+                }
+                if (!size) {
+                    size = 2;
+                }
+                const limit = parseInt(size);
+                const skip = (page - 1) * size;
+                const fetchdata = yield index_1.AdminModels.ModelNewStudent.find({ IsActive: true })
+                    .limit(limit)
+                    .skip(skip)
+                    .sort({ updatedAt: -1 });
+                return new helperFun_1.resp_Object("Student Data", 200, fetchdata);
+            }
+            catch (error) {
+                return { errors: error };
+            }
+        });
+    }
     //--------------------refresh token-----------------------------
     renew_token(request) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -416,6 +417,12 @@ __decorate([
     (0, tsoa_1.Security)('Bearer'),
     (0, tsoa_1.Delete)('/student/delete/:id')
 ], AdminController.prototype, "deleteStudent", null);
+__decorate([
+    (0, tsoa_1.Security)('Bearer'),
+    (0, tsoa_1.Get)('/students'),
+    __param(0, (0, tsoa_1.Query)()),
+    __param(1, (0, tsoa_1.Query)())
+], AdminController.prototype, "get_Students", null);
 __decorate([
     (0, tsoa_1.Security)('Bearer'),
     (0, tsoa_1.Post)('/login/refreshtoken'),

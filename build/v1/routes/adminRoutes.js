@@ -99,14 +99,13 @@ router.delete('/student/delete/:id', auth_1.verify_token, (req, res, next) => __
     const response = yield controller.deleteStudent(req.params.id);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
-// router.get('/students',async (req: Request, res: Response, next: NextFunction) => {
-//     const controller = new AdminController(req, res)
-//     // if(!req.query) throw res.send("please enter data")
-//     const {page,size} = req.query
-//     const pagination = {page,size}
-//     const response = await controller.get_Students(pagination)
-//     response.CatchError ? next(response.CatchError) : response_handler(response, res)
-// });
+router.get('/students', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    // if(!req.query) throw res.send("please enter data")
+    const { page, size } = req.query;
+    const response = yield controller.get_Students(page, size);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
 router.post('/login/refreshtoken', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
     console.log(req.body.refresh_token, "admin route side");

@@ -105,15 +105,14 @@ router.delete('/student/delete/:id', verify_token, async (req: Request, res: Res
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
 
 });
-// router.get('/students',async (req: Request, res: Response, next: NextFunction) => {
-//     const controller = new AdminController(req, res)
-//     // if(!req.query) throw res.send("please enter data")
-//     const {page,size} = req.query
-//     const pagination = {page,size}
-//     const response = await controller.get_Students(pagination)
-//     response.CatchError ? next(response.CatchError) : response_handler(response, res)
+router.get('/students',async (req: Request, res: Response, next: NextFunction) => {
+    const controller = new AdminController(req, res)
+    // if(!req.query) throw res.send("please enter data")
+    const {page,size} = req.query
+    const response = await controller.get_Students(page,size)
+    response.CatchError ? next(response.CatchError) : response_handler(response, res)
 
-// });
+});
 router.post('/login/refreshtoken', async (req: Request, res: Response, next: NextFunction) => {
     const controller = new AdminController(req, res)
     console.log(req.body.refresh_token, "admin route side");

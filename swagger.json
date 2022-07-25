@@ -718,6 +718,50 @@
 				]
 			}
 		},
+		"/admin/students": {
+			"get": {
+				"operationId": "Get_Students",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"Bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": true,
+						"schema": {}
+					},
+					{
+						"in": "query",
+						"name": "size",
+						"required": true,
+						"schema": {}
+					}
+				]
+			}
+		},
 		"/admin/login/refreshtoken": {
 			"post": {
 				"operationId": "Renew_token",
