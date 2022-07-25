@@ -7,7 +7,18 @@ import middleware from "./utils/middleware";
 // import {RegisterRoutes} from "./routes"
 import * as swaggerUI from "swagger-ui-express"
 import cors from "cors"
-
+const corsOptions = {
+	// origin: 'https://examination-portal.vercel.app',
+	origin: function (origin:any, callback:any) {
+	if (!origin) return callback(null, true);
+	if (['http://localhost:3000', 'https://examination-portal.vercel.app'].indexOf(origin) === -1) {
+	let msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+	return callback(new Error(msg), false);
+	}
+	return callback(null, true);
+	},
+	optionsSuccessStatus: 200
+	};
 const app = express();
 app.listen(port, () => {
 	console.log(`port is running on ${port}`);
@@ -17,7 +28,7 @@ connect.connection()
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors({origin:'*'}));
+app.use(cors(corsOptions));
 
 const swaggerDocument = require('../swagger.json')
 // console.log(swaggerDocument);

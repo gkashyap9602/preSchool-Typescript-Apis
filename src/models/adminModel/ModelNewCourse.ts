@@ -24,7 +24,11 @@ const NewCourceSchema = new Schema<class_interface>({
         type: Number,
         required: true,
     },
-});
+},
+    {
+        timestamps: true
+    }
+);
 
 const ModelNewCource = model<class_interface>(
     "Class_Or_Cources",

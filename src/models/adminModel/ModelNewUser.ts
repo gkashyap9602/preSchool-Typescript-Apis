@@ -1,13 +1,13 @@
-import {Schema,model,Document} from "mongoose"
+import { Schema, model, Document } from "mongoose"
 
-export interface userInterface{
+export interface userInterface {
     role: number
-    fname:string,
-    lname:string,
-    email:string,
-    mobileNum:number,
-    password:string,
-    username:string,
+    fname: string,
+    lname: string,
+    email: string,
+    mobileNum: number,
+    password: string,
+    username: string,
     gender: string,
     father_name: string,
     mother_name: string,
@@ -15,55 +15,58 @@ export interface userInterface{
 
 }
 
-const NewUserSchema = new Schema <userInterface>({
-    role:{
+const NewUserSchema = new Schema<userInterface>({
+    role: {
         type: Number,
-        required:true
+        required: true
     },
-    fname:{
-        type:String,
-        required:true
+    fname: {
+        type: String,
+        required: true
     },
-    lname:{
-        type:String,
-        required:true,
+    lname: {
+        type: String,
+        required: true,
     },
-    email:{
-        type:String,
-        unique:true,
-        required:true
+    email: {
+        type: String,
+        unique: true,
+        required: true
     },
-    mobileNum:{
+    mobileNum: {
         type: Number,
-        required:true,
-        unique:true,
+        required: true,
+        unique: true,
         // min:10,
         // max:10
     },
-    password:{
-        type:String,
-        required:true
+    password: {
+        type: String,
+        required: true
     },
-    username:{
-        type:String
-    },
-    gender:{
-        type:String
-    },
-    father_name:{
+    username: {
         type: String
     },
-    mother_name:{
-       type:String
+    gender: {
+        type: String
     },
-    religion:{
+    father_name: {
+        type: String
+    },
+    mother_name: {
+        type: String
+    },
+    religion: {
         type: String
     }
 
-})
+},
+    {
+        timestamps: true
+    });
 
-const ModelNewUser =   model <userInterface>('New_User',NewUserSchema)
+const ModelNewUser = model<userInterface>('New_User', NewUserSchema)
 
-export  {ModelNewUser}
+export { ModelNewUser }
 
 

@@ -368,8 +368,7 @@ export class AdminController extends Controller {
 
 	//   @Security('Bearer')
 	//   @Get('/students')
-	//   public async get_Students(
-	// 	@Query() request: { page: number|any; size: number | any }): Promise<responseType | any> {
+	//   public async get_Students(@Query() page: number|any,@Query() size: number | any ): Promise<responseType | any> {
 	// 	try {
 	// 	  let { page, size } = request;
 	// 	  if (!page) {

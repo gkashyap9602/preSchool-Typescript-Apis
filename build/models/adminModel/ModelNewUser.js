@@ -46,6 +46,8 @@ const NewUserSchema = new mongoose_1.Schema({
     religion: {
         type: String
     }
+}, {
+    timestamps: true
 });
 const ModelNewUser = (0, mongoose_1.model)('New_User', NewUserSchema);
 exports.ModelNewUser = ModelNewUser;
