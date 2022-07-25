@@ -43,7 +43,7 @@ connection_1.default.connection();
 app.use(express_1.default.json());
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({ origin: '*' }));
 const swaggerDocument = require('../swagger.json');
 // console.log(swaggerDocument);
 app.use('/swagger-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument), (err) => {

@@ -352,7 +352,7 @@ let AdminController = class AdminController extends tsoa_1.Controller {
                     console.log(typeof verify, "verifyyyy");
                     const New_Access_token = (0, auth_1.genAuthToken)(verify._id);
                     if (New_Access_token) {
-                        return new helperFun_1.resp_Object(message_1.MESSAGES.TOKEN_GENERATED_SUCCESSFULLY, http_status_codes_1.default.CREATED, { New_Access_token: New_Access_token.Access_token });
+                        return new helperFun_1.resp_Object(message_1.MESSAGES.TOKEN_GENERATED_SUCCESSFULLY, http_status_codes_1.default.CREATED, { NewAccesstoken: New_Access_token.Access_token });
                     }
                 }
             }

@@ -404,7 +404,7 @@ export class AdminController extends Controller {
 				console.log(typeof verify, "verifyyyy");
 				const New_Access_token = genAuthToken(verify._id);
 				if (New_Access_token) {
-					return new resp_Object(MESSAGES.TOKEN_GENERATED_SUCCESSFULLY, http.CREATED, { New_Access_token: New_Access_token.Access_token })
+					return new resp_Object(MESSAGES.TOKEN_GENERATED_SUCCESSFULLY, http.CREATED, { NewAccesstoken: New_Access_token.Access_token })
 				}
 			}
 		} catch (error) {
