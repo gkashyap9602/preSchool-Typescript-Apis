@@ -7,6 +7,7 @@ import middleware from "./utils/middleware";
 // import {RegisterRoutes} from "./routes"
 import * as swaggerUI from "swagger-ui-express"
 import cors from "cors"
+
 const corsOptions = {
 	// origin: 'https://examination-portal.vercel.app',
 	origin: function (origin:any, callback:any) {
