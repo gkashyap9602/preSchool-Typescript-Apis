@@ -7,9 +7,6 @@ import { response_handler, object_id_check } from "../../utils/helperFun"
 
 router.post('/user/create', async (req: Request, res: Response, next: NextFunction) => {
     const controller = new AdminController(req, res)
-    if(!req.body){
-        res.send({message:"please enter some user data"})
-    }
     const response = await controller.New_Users(req.body)
     console.log(response, "response");
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
@@ -43,9 +40,6 @@ router.get('/users', verify_token, async (req: Request, res: Response, next: Nex
 
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
     const controller = new AdminController(req, res)
-    if(!req.body){
-        res.send("please enter admin email and  password ")
-    }
     console.log(req.body, "admin route side");
     const response = await controller.AdminLoginFun(req.body)
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
@@ -62,9 +56,6 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 
 router.post('/class/create', verify_token, async (req: Request, res: Response, next: NextFunction) => {
     const controller = new AdminController(req, res)
-    if(!req.body){
-        res.send({message:"please enter some class data"})
-    }
     console.log(req.body, "admin route side");
     const response = await controller.addCourse(req.body)
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
@@ -95,9 +86,6 @@ router.get('/classes', verify_token, async (req: Request, res: Response, next: N
 //-------------------student routes-----------------------------
 router.post('/student/create', verify_token, async (req: Request, res: Response, next: NextFunction) => {
     const controller = new AdminController(req, res)
-    if(!req.body){
-        res.send({message:"please enter some student data"})
-    }
     const response = await controller.Add_Student(req.body)
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
 
@@ -118,10 +106,7 @@ router.delete('/student/delete/:id', verify_token, async (req: Request, res: Res
 
 });
 router.get('/students',async (req: Request, res: Response, next: NextFunction) => {
-    const controller = new AdminController(req, res)
-    if(!req.query){
-        res.send("please enter data")
-    } 
+    const controller = new AdminController(req, res) 
     const {page,size} = req.query
     const response = await controller.get_Students(page,size)
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
@@ -129,9 +114,6 @@ router.get('/students',async (req: Request, res: Response, next: NextFunction) =
 });
 router.post('/login/refreshtoken', async (req: Request, res: Response, next: NextFunction) => {
     const controller = new AdminController(req, res)
-    if(!req.body){
-        res.send("please enter some data")
-    }
     console.log(req.body, "admin route side");
     const response = await controller.renew_token(req.body)
     response.CatchError ? next(response.CatchError) : response_handler(response, res)

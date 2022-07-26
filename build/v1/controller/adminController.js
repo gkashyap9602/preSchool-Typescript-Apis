@@ -197,8 +197,12 @@ let AdminController = class AdminController extends tsoa_1.Controller {
                 if (!Class_Data)
                     throw new helperFun_1.error_Object("please enter data", 404);
                 const FindClass = yield index_1.AdminModels.ModelNewCource.findOne({ Class: Class_Data.Class });
+                console.log(FindClass, "findclass");
+                const FindClassCode = yield index_1.AdminModels.ModelNewCource.findOne({ Class_Code: Class_Data.Class_Code });
                 if (FindClass)
                     throw new helperFun_1.error_Object(message_1.MESSAGES.CLASS_ALREADY_REGISTERED, http_status_codes_1.default.CONFLICT);
+                if (FindClassCode)
+                    throw new helperFun_1.error_Object(message_1.MESSAGES.CLASS_CODE_ALREADY_REGISTERED, http_status_codes_1.default.CONFLICT);
                 const ClassRegistered = yield new index_1.AdminModels.ModelNewCource(Class_Data).save();
                 return new helperFun_1.resp_Object(message_1.MESSAGES.CLASS_REGISTERED_SUCCESSFULLY, http_status_codes_1.default.CREATED);
             }
@@ -345,7 +349,7 @@ let AdminController = class AdminController extends tsoa_1.Controller {
             try {
                 const { refresh_token } = request;
                 if (!refresh_token)
-                    throw new helperFun_1.error_Object("please enter data", 404);
+                    throw new helperFun_1.error_Object("please enter  data", 404);
                 console.log(refresh_token, "controller side");
                 if (refresh_token || refreshTokens.includes(refresh_token)) {
                     const verify = yield (0, auth_1.verify_refresh_token)(refresh_token);

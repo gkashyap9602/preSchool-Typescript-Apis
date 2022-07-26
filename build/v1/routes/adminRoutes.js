@@ -18,9 +18,6 @@ const auth_1 = require("../../utils/auth");
 const helperFun_1 = require("../../utils/helperFun");
 router.post('/user/create', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
-    if (!req.body) {
-        res.send({ message: "please enter some user data" });
-    }
     const response = yield controller.New_Users(req.body);
     console.log(response, "response");
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
@@ -47,9 +44,6 @@ router.get('/users', auth_1.verify_token, (req, res, next) => __awaiter(void 0, 
 }));
 router.post('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
-    if (!req.body) {
-        res.send("please enter admin email and  password ");
-    }
     console.log(req.body, "admin route side");
     const response = yield controller.AdminLoginFun(req.body);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
@@ -63,9 +57,6 @@ router.post('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, func
 //--------------------------class routes------------------------------
 router.post('/class/create', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
-    if (!req.body) {
-        res.send({ message: "please enter some class data" });
-    }
     console.log(req.body, "admin route side");
     const response = yield controller.addCourse(req.body);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
@@ -92,9 +83,6 @@ router.get('/classes', auth_1.verify_token, (req, res, next) => __awaiter(void 0
 //-------------------student routes-----------------------------
 router.post('/student/create', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
-    if (!req.body) {
-        res.send({ message: "please enter some student data" });
-    }
     const response = yield controller.Add_Student(req.body);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
@@ -113,18 +101,12 @@ router.delete('/student/delete/:id', auth_1.verify_token, (req, res, next) => __
 }));
 router.get('/students', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
-    if (!req.query) {
-        res.send("please enter data");
-    }
     const { page, size } = req.query;
     const response = yield controller.get_Students(page, size);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
 router.post('/login/refreshtoken', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
-    if (!req.body) {
-        res.send("please enter some data");
-    }
     console.log(req.body, "admin route side");
     const response = yield controller.renew_token(req.body);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);

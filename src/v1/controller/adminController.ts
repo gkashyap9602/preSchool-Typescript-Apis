@@ -252,7 +252,12 @@ export class AdminController extends Controller {
 			if(!Class_Data) throw new error_Object("please enter data",404)
 
 			const FindClass = await AdminModels.ModelNewCource.findOne({ Class: Class_Data.Class });
+			console.log(FindClass,"findclass");
+			const FindClassCode = await AdminModels.ModelNewCource.findOne({ Class_Code: Class_Data.Class_Code });
+
+			
 			if (FindClass) throw new error_Object(MESSAGES.CLASS_ALREADY_REGISTERED, http.CONFLICT)
+			if (FindClassCode) throw new error_Object(MESSAGES.CLASS_CODE_ALREADY_REGISTERED, http.CONFLICT)
 
 			const ClassRegistered = await new AdminModels.ModelNewCource(Class_Data).save();
 
@@ -397,15 +402,14 @@ export class AdminController extends Controller {
 	public async renew_token(@Body() request: { refresh_token: string }): Promise<responseType | any> {
 		try {
 			const { refresh_token } = request
-			if(!refresh_token) throw new error_Object("please enter data",404)
+			if(!refresh_token) throw new error_Object("please enter  data",404)
 			console.log(refresh_token,"controller side");
 
 			if (refresh_token || refreshTokens.includes(refresh_token)) {
 				const verify: any =  await verify_refresh_token(refresh_token)
 				// const verify: any =  jwt.verify(refresh_token, refresh_token_SecretKey)
 				if (verify.verify_err) {
-					console.log(verify.verify_err,"verify_err sideeeeeeeeeeee");
-					
+					console.log(verify.verify_err,"verify_err sideeeeeeeeeeee");	
 					throw verify.verify_err
 				}
 				// new error_Object("invalid token please check", 422)
