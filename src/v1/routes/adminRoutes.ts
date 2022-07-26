@@ -54,7 +54,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 //     });
 //--------------------------class routes------------------------------
 
-router.post('/class/create', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/class/create',verify_token, async (req: Request, res: Response, next: NextFunction) => {
     const controller = new AdminController(req, res)
     console.log(req.body, "admin route side");
     const response = await controller.addCourse(req.body)

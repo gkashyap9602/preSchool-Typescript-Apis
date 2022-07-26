@@ -4,7 +4,7 @@ exports.ModelNewCource = void 0;
 const mongoose_1 = require("mongoose");
 const NewCourceSchema = new mongoose_1.Schema({
     Class: {
-        type: Number,
+        type: String,
         required: true,
     },
     Admission_Fee: {

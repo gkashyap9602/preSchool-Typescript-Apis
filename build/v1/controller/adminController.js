@@ -279,7 +279,7 @@ let AdminController = class AdminController extends tsoa_1.Controller {
                 //  console.log(className);
                 if (!FindClass)
                     throw new helperFun_1.error_Object(message_1.MESSAGES.INVALID_ID_OR_DATA_DOES_NOT_EXIST, http_status_codes_1.default.NOT_FOUND);
-                const ClassName = FindClass.Class;
+                const ClassName = parseInt(FindClass.Class);
                 const finduser = yield index_1.AdminModels.ModelNewStudent.find({
                     userId: body.userId,
                     classId: body.classId,

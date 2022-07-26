@@ -246,7 +246,7 @@ export class AdminController extends Controller {
 	//--------------class functions-------------------------------
 	@Security("Bearer")
 	@Post("/class/create")
-	public async addCourse(@Body() request: { Class: number; Class_Code: string; Admission_Fee: number; Monthly_Fee: number; }): Promise<responseType | any> {
+	public async addCourse(@Body() request: { Class: string; Class_Code: string; Admission_Fee: number; Monthly_Fee: number; }): Promise<responseType | any> {
 		try {
 
 			let ClassData = request;
@@ -337,7 +337,7 @@ export class AdminController extends Controller {
 			const FindClass = await AdminModels.ModelNewCource.findById({ _id: body.classId });
 			//  console.log(className);
 			if (!FindClass) throw new error_Object(MESSAGES.INVALID_ID_OR_DATA_DOES_NOT_EXIST, http.NOT_FOUND)
-			const ClassName = FindClass.Class;
+			const ClassName = parseInt(FindClass.Class); 
 
 			const finduser = await AdminModels.ModelNewStudent.find({
 				userId: body.userId,

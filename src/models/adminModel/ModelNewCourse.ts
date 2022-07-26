@@ -1,7 +1,7 @@
 import { Schema, model, Document } from "mongoose";
 
 interface class_interface {
-    Class: number;
+    Class: string;
     Class_Code: string;
     Admission_Fee: number;
     Monthly_Fee: number;
@@ -9,7 +9,7 @@ interface class_interface {
 
 const NewCourceSchema = new Schema<class_interface>({
     Class: {
-        type: Number,
+        type: String,
         required: true,
     },
     Admission_Fee: {
