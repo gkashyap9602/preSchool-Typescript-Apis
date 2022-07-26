@@ -51,7 +51,7 @@ export class AdminController extends Controller {
 	};
 
 	@Post("/user/create")
-	public async New_Users(@Body() request: { role: number; fname: string; lname: string; email: string; mobileNum: number; password: string; gender: string; username: string; father_name: string; mother_name: string; religion: string; }): Promise<responseType | any> {
+	public async New_Users(@Body() request: { role: number; fname: string; lname: string; email: string; mobileNum: number; password: string; father_name: string; mother_name: string;}): Promise<responseType | any> {
 		try {
 			const salt = await bcrypt.genSalt(10);
 			const body = request;
@@ -81,7 +81,7 @@ export class AdminController extends Controller {
 			// assigning a auto generated username to the user
 			Object.assign(body, { username: "PS" + yearcode + usercode });
 
-			const UserSaved: any = await new AdminModels.ModelNewUser<userInterface>(
+			const UserSaved: any = await new AdminModels.ModelNewUser(
 				body
 			).save(async (err, success) => {
 

@@ -8,10 +8,8 @@ export interface userInterface {
     mobileNum: number,
     password: string,
     username: string,
-    gender: string,
     father_name: string,
     mother_name: string,
-    religion: string
 
 }
 
@@ -47,18 +45,12 @@ const NewUserSchema = new Schema<userInterface>({
     username: {
         type: String
     },
-    gender: {
-        type: String
-    },
     father_name: {
         type: String
     },
     mother_name: {
         type: String
     },
-    religion: {
-        type: String
-    }
 
 },
     {

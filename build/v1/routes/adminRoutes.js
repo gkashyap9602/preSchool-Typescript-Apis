@@ -81,7 +81,7 @@ router.get('/classes', auth_1.verify_token, (req, res, next) => __awaiter(void 0
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
 //-------------------student routes-----------------------------
-router.post('/student/create', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/student/create', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
     const response = yield controller.Add_Student(req.body);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);

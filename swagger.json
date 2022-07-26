@@ -83,19 +83,10 @@
 						"application/json": {
 							"schema": {
 								"properties": {
-									"religion": {
-										"type": "string"
-									},
 									"mother_name": {
 										"type": "string"
 									},
 									"father_name": {
-										"type": "string"
-									},
-									"username": {
-										"type": "string"
-									},
-									"gender": {
 										"type": "string"
 									},
 									"password": {
@@ -120,11 +111,8 @@
 									}
 								},
 								"required": [
-									"religion",
 									"mother_name",
 									"father_name",
-									"username",
-									"gender",
 									"password",
 									"mobileNum",
 									"email",

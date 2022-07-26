@@ -84,7 +84,7 @@ router.get('/classes', verify_token, async (req: Request, res: Response, next: N
 
 });
 //-------------------student routes-----------------------------
-router.post('/student/create', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/student/create',verify_token, async (req: Request, res: Response, next: NextFunction) => {
     const controller = new AdminController(req, res)
     const response = await controller.Add_Student(req.body)
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
