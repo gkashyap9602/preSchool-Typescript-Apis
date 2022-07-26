@@ -31,6 +31,7 @@ import {
 	Example,
 } from "tsoa";
 import { put } from "../routes/userRoutes";
+import { isAwaitExpression } from "typescript";
 
 let refreshTokens: any = [];
 
@@ -248,20 +249,40 @@ export class AdminController extends Controller {
 	public async addCourse(@Body() request: { Class: number; Class_Code: string; Admission_Fee: number; Monthly_Fee: number; }): Promise<responseType | any> {
 		try {
 
-			let Class_Data = request;
-			if(!Class_Data) throw new error_Object("please enter data",404)
+			let ClassData = request;
+			if(!ClassData) throw new error_Object("please enter data",404)
 
-			const FindClass = await AdminModels.ModelNewCource.findOne({ Class: Class_Data.Class });
+			// const FindClass = await AdminModels.ModelNewCource.find({ $or:[{Class: ClassData.Class},{ Class_Code:ClassData.Class_Code}]});
+			const FindClass = await AdminModels.ModelNewCource.findOne({ 
+				Class: ClassData.Class,	
+			   });
+			   const FindClassCode = await AdminModels.ModelNewCource.findOne({ 
+				Class_Code:ClassData.Class_Code,
+	
+			   });
 			console.log(FindClass,"findclass");
-			const FindClassCode = await AdminModels.ModelNewCource.findOne({ Class_Code: Class_Data.Class_Code });
 
-			
-			if (FindClass) throw new error_Object(MESSAGES.CLASS_ALREADY_REGISTERED, http.CONFLICT)
-			if (FindClassCode) throw new error_Object(MESSAGES.CLASS_CODE_ALREADY_REGISTERED, http.CONFLICT)
+			if(FindClass){
+			      throw new error_Object("Class  Already Register",409)
+				  
+			}
+			if(FindClassCode){
+				throw new error_Object(" Class Code Already Register",409)
+				
+		  }
+			await new AdminModels.ModelNewCource(ClassData).save();
+		   return new resp_Object(MESSAGES.CLASS_REGISTERED_SUCCESSFULLY, http.CREATED)
 
-			const ClassRegistered = await new AdminModels.ModelNewCource(Class_Data).save();
+			// if (FindClass.length === 1){
+			// 	throw new error_Object("Class Already Registered", http.CONFLICT)
 
-			return new resp_Object(MESSAGES.CLASS_REGISTERED_SUCCESSFULLY, http.CREATED)
+			// }else if (FindClass.length > 1){
+			// 	throw new error_Object("Class Code Already Registered", http.CONFLICT)
+
+			// }else{
+			// 	 await new AdminModels.ModelNewCource(ClassData).save();
+			// 	 return new resp_Object(MESSAGES.CLASS_REGISTERED_SUCCESSFULLY, http.CREATED)
+			// }
 		} catch (error) {
 			return { CatchError: error };
 		}
@@ -319,10 +340,10 @@ export class AdminController extends Controller {
 			const ClassName = FindClass.Class;
 
 			const finduser = await AdminModels.ModelNewStudent.find({
-				user_id: body.userId,
-				class_id: body.classId,
+				userId: body.userId,
+				classId: body.classId,
 			});
-			// console.log(finduser, "find user");
+			console.log(finduser, "find userrrrrrr");
 			if (finduser.length > 0) {
 				console.log("already");
 				throw new error_Object(MESSAGES.STUDENT_ALREADY_REGISTERED_WITH_SAME_CLASS, http.CONFLICT)

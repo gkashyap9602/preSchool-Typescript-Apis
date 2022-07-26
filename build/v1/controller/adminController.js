@@ -193,18 +193,33 @@ let AdminController = class AdminController extends tsoa_1.Controller {
     addCourse(request) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let Class_Data = request;
-                if (!Class_Data)
+                let ClassData = request;
+                if (!ClassData)
                     throw new helperFun_1.error_Object("please enter data", 404);
-                const FindClass = yield index_1.AdminModels.ModelNewCource.findOne({ Class: Class_Data.Class });
+                // const FindClass = await AdminModels.ModelNewCource.find({ $or:[{Class: ClassData.Class},{ Class_Code:ClassData.Class_Code}]});
+                const FindClass = yield index_1.AdminModels.ModelNewCource.findOne({
+                    Class: ClassData.Class,
+                });
+                const FindClassCode = yield index_1.AdminModels.ModelNewCource.findOne({
+                    Class_Code: ClassData.Class_Code,
+                });
                 console.log(FindClass, "findclass");
-                const FindClassCode = yield index_1.AdminModels.ModelNewCource.findOne({ Class_Code: Class_Data.Class_Code });
-                if (FindClass)
-                    throw new helperFun_1.error_Object(message_1.MESSAGES.CLASS_ALREADY_REGISTERED, http_status_codes_1.default.CONFLICT);
-                if (FindClassCode)
-                    throw new helperFun_1.error_Object(message_1.MESSAGES.CLASS_CODE_ALREADY_REGISTERED, http_status_codes_1.default.CONFLICT);
-                const ClassRegistered = yield new index_1.AdminModels.ModelNewCource(Class_Data).save();
+                if (FindClass) {
+                    throw new helperFun_1.error_Object("Class  Already Register", 409);
+                }
+                if (FindClassCode) {
+                    throw new helperFun_1.error_Object(" Class Code Already Register", 409);
+                }
+                yield new index_1.AdminModels.ModelNewCource(ClassData).save();
                 return new helperFun_1.resp_Object(message_1.MESSAGES.CLASS_REGISTERED_SUCCESSFULLY, http_status_codes_1.default.CREATED);
+                // if (FindClass.length === 1){
+                // 	throw new error_Object("Class Already Registered", http.CONFLICT)
+                // }else if (FindClass.length > 1){
+                // 	throw new error_Object("Class Code Already Registered", http.CONFLICT)
+                // }else{
+                // 	 await new AdminModels.ModelNewCource(ClassData).save();
+                // 	 return new resp_Object(MESSAGES.CLASS_REGISTERED_SUCCESSFULLY, http.CREATED)
+                // }
             }
             catch (error) {
                 return { CatchError: error };
@@ -266,10 +281,10 @@ let AdminController = class AdminController extends tsoa_1.Controller {
                     throw new helperFun_1.error_Object(message_1.MESSAGES.INVALID_ID_OR_DATA_DOES_NOT_EXIST, http_status_codes_1.default.NOT_FOUND);
                 const ClassName = FindClass.Class;
                 const finduser = yield index_1.AdminModels.ModelNewStudent.find({
-                    user_id: body.userId,
-                    class_id: body.classId,
+                    userId: body.userId,
+                    classId: body.classId,
                 });
-                // console.log(finduser, "find user");
+                console.log(finduser, "find userrrrrrr");
                 if (finduser.length > 0) {
                     console.log("already");
                     throw new helperFun_1.error_Object(message_1.MESSAGES.STUDENT_ALREADY_REGISTERED_WITH_SAME_CLASS, http_status_codes_1.default.CONFLICT);

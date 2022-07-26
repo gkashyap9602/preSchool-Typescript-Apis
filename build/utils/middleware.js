@@ -15,7 +15,7 @@ function handle_err(err, req, res, next) {
     console.log(err.stack, "handle side");
     console.log(err, "errrr");
     if (err.name === "MongoServerError" || err.code === 11000) {
-        res.json({
+        res.status(err.Status_Code).json({
             message: "Duplicate Value or User Details Already exists",
             error: err.keyValue,
             status_code: err.Status_Code || http_status_codes_1.default.UNPROCESSABLE_ENTITY,
@@ -23,7 +23,7 @@ function handle_err(err, req, res, next) {
         });
     }
     else {
-        res.json({
+        res.status(err.Status_Code).json({
             message: err.message ? err.message : err,
             status_code: err.Status_Code || http_status_codes_1.default.BAD_REQUEST,
             stack: err.stack
