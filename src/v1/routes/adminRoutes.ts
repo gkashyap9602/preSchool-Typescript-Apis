@@ -1,5 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 const router = express.Router();
+import { validations } from "../../validations/adminvalidations";
+
 
 import { AdminController } from "../controller/adminController"
 import { verify_token } from "../../utils/auth"
@@ -10,7 +12,9 @@ router.post('/user/create', async (req: Request, res: Response, next: NextFuncti
     if(!req.body){
         res.send({message:"please enter some user data"})
     }
+    
     const response = await controller.New_Users(req.body)
+
     console.log(response, "response");
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
 
