@@ -57,12 +57,13 @@ router.post('/login/refreshtoken', (req, res, next) => __awaiter(void 0, void 0,
     const response = yield controller.renew_token(req.body);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
-//  router.get('/users/:id',async(req: Request, res: Response, next: NextFunction)=>{
-//     const controller = new AdminController(req,res)
-//     console.log(req.params.id,"admin route side");
-//     const response = await controller.SingleUserDetail(req.params.id)
-//     response.CatchResponse? response_handler( response.CatchResponse,res): next(response.CatchError)
-//     });
+router.get('/users/:id', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    (0, helperFun_1.object_id_check)(req.params.id, res);
+    console.log(req.body, "admin route side");
+    const response = yield controller.SingleUserDetails(req.params.id);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
 //--------------------------class routes------------------------------
 router.post('/class/create', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
@@ -114,9 +115,48 @@ router.get('/students', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     const response = yield controller.get_Students(page, size);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
-router.post('/transaction/create/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+//----------------------transactions routes--------------------------------------
+router.post('/transaction/create', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
     const response = yield controller.transactionHistory(req.body);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
+router.get('/transaction', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    const { page, size } = req.query;
+    const response = yield controller.getAllTransaction(page, size);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
+router.get('/transaction/bydate', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    const { startDate, endDate } = req.query;
+    const response = yield controller.transactionsByDate(startDate, endDate);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
+router.get('/transaction/byclass/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    (0, helperFun_1.object_id_check)(req.params.id, res);
+    const response = yield controller.transactionByClass(req.params.id);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
+// router.get('/transaction/byname/:firstname', async (req: Request, res: Response, next: NextFunction) => {
+//     const controller = new AdminController(req, res)
+//     const response = await controller.transactionByName(req.params.id)
+//     response.CatchError ? next(response.CatchError) : response_handler(response, res)
+// });
+router.get('/transaction/pastdays', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    // const total_days = req.query.days;
+    const response = yield controller.transactionOfLastDays(req.query.days);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
+router.get('/transaction/totalfee', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    // const class_id = req.query.class_id;
+    // const from_date = req.query.from_date;
+    // const to_date = req.query.to_date;
+    const { class_id, from_date, to_date } = req.query;
+    const response = yield controller.totalFeeOfLastDays(class_id, from_date, to_date);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
 module.exports = router;

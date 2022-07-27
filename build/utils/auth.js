@@ -18,7 +18,7 @@ const config_1 = require("../config/config");
 // Generate jwt token each time
 function genAuthToken(_id) {
     try {
-        const Access_token = jsonwebtoken_1.default.sign({ _id: _id }, config_1.Access_token_SecretKey, { expiresIn: "60s" });
+        const Access_token = jsonwebtoken_1.default.sign({ _id: _id }, config_1.Access_token_SecretKey, { expiresIn: "10m" });
         //   console.log(Access_token, "Access token generated ");
         const refresh_token = jsonwebtoken_1.default.sign({ _id: _id }, config_1.refresh_token_SecretKey, { expiresIn: "7d" });
         //   console.log(refresh_token, "Refresh token generated ");

@@ -18,6 +18,8 @@ const MESSAGES = {
     TOKEN_GENERATED_SUCCESSFULLY: "Token Generated Successfully",
     BODY_IS_EMPTY_PLEASE_ENTER_DATA: "Body Is Empty Please Enter Data",
     TRANSACTION_SUCCESSFULL: "Transaction Succesfull",
+    NO_MORE_ENTRIES_ARE_AVAILABLE: "No More Entries Are Available",
+    PLEASE_ENTER_VALID_NUMBER_OF_DAY: "Please Enter Valid Number Of Day",
     CLASS_ALREADY_REGISTERED: "Class Already Registered",
     CLASS_CODE_ALREADY_REGISTERED: "Class Code Already Registered",
     CLASS_REGISTERED_SUCCESSFULLY: "Class Registered Successfully",

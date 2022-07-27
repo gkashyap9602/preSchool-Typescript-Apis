@@ -29,6 +29,7 @@ const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const index_2 = __importDefault(require("../../services/index"));
 const auth_1 = require("../../utils/auth");
 const crypto_1 = __importDefault(require("crypto"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const helperFun_1 = require("../../utils/helperFun");
 const tsoa_1 = require("tsoa");
 let refreshTokens = [];
@@ -214,25 +215,20 @@ let AdminController = class AdminController extends tsoa_1.Controller {
         });
     }
     ;
-    // @Security("Bearer")
-    // @Get("/users/{id}")
-    // public async SingleUserDetail(@Path() paramsId:string) {
-    //  try {
-    //   const user_id = paramsId
-    //   const userdata = await AdminModels.ModelNewUser.find(
-    //     { _id: user_id },
-    //     { password: 0 }
-    //   );
-    //   const response = new resp_Object(
-    //     MESSAGES.DATA_RETREIVE_SUCCESSFULLY,
-    //     http.OK,
-    //     userdata
-    //   );
-    //   return { CatchResponse: response };
-    // } catch (error) {
-    //   return { CatchError: error };
-    // }
-    // };
+    SingleUserDetails(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user_id = id;
+                const userdata = yield index_1.AdminModels.ModelNewUser.find({ _id: user_id }, { password: 0 });
+                const response = new helperFun_1.resp_Object(message_1.MESSAGES.DATA_RETREIVE_SUCCESSFULLY, http_status_codes_1.default.OK, userdata);
+                return { CatchResponse: response };
+            }
+            catch (error) {
+                return { CatchError: error };
+            }
+        });
+    }
+    ;
     //--------------class functions-------------------------------
     addCourse(request) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -398,7 +394,7 @@ let AdminController = class AdminController extends tsoa_1.Controller {
                 return new helperFun_1.resp_Object("Student Data", 200, fetchdata);
             }
             catch (error) {
-                return { errors: error };
+                return { CatchError: error };
             }
         });
     }
@@ -426,40 +422,40 @@ let AdminController = class AdminController extends tsoa_1.Controller {
                                 studentId: studentId,
                                 classId: classId,
                                 feeType: request.feeType,
-                                Amount: request.Amount,
+                                feeAmount: request.feeAmount,
                                 transactionId: yield this.generateTransId(),
                             };
                             const classdata = yield index_1.AdminModels.ModelNewCource.findOne({
                                 _id: classId,
                             });
                             const myfee = classdata.Admission_Fee;
-                            const data1 = studentdata.Firstname;
+                            // const data1 = studentdata.Firstname;
                             yield new index_1.AdminModels.ModelTransaction(obj).save();
                             if (obj.feeType == 1) {
-                                const rest = classdata.Admission_Fee - obj.Amount;
+                                const rest = classdata.Admission_Fee - obj.feeAmount;
                                 const myobj = yield index_1.AdminModels.ModelNewStudent.findByIdAndUpdate(studentId, {
-                                    total_Due: rest,
+                                    total_due_fee: rest,
                                 });
                                 return new helperFun_1.resp_Object("Admission Fee Paid Successfully", 200);
                             }
                             else if (obj.feeType == 2) {
-                                const rest = classdata.Monthly_Fee - obj.Amount;
-                                const sum = studentdata.total_Due + rest;
+                                const rest = classdata.Monthly_Fee - obj.feeAmount;
+                                const sum = studentdata.total_due_fee + rest;
                                 const myobj = yield index_1.AdminModels.ModelNewStudent.findByIdAndUpdate(studentId, {
-                                    total_Due: sum,
+                                    total_due_fee: sum,
                                 });
                                 return new helperFun_1.resp_Object("Monthly Fee Paid Successfully", 200);
                             }
                             else if (obj.feeType == 3) {
-                                const rest = obj.Amount;
-                                const sum = studentdata.total_Due - obj.Amount;
+                                const rest = obj.feeAmount;
+                                const sum = studentdata.total_due_fee - obj.feeAmount;
                                 yield index_1.AdminModels.ModelNewStudent.findByIdAndUpdate(studentId, {
-                                    total_Due: sum,
+                                    total_due_fee: sum,
                                 });
                                 return new helperFun_1.resp_Object("Dues Paid Successfully", 200);
                             }
                             const mydue = yield index_1.AdminModels.ModelNewStudent.findById(studentId);
-                            if (mydue.total_Due <= 0) {
+                            if (mydue.total_due_fee <= 0) {
                                 yield index_1.AdminModels.ModelNewStudent.findByIdAndUpdate(studentId, {
                                     pendingFee: true,
                                 });
@@ -474,11 +470,227 @@ let AdminController = class AdminController extends tsoa_1.Controller {
                 }
             }
             catch (error) {
-                return { errors: error };
+                return { CatchError: error };
             }
         });
     }
     ;
+    // =============Get All Transactions===============
+    getAllTransaction(page, size) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                //   let { page, size } = request;
+                if (!page) {
+                    page = 1;
+                }
+                if (!size) {
+                    size = 5;
+                }
+                const limit = parseInt(size);
+                const skip = (page - 1) * size;
+                const trdata = yield index_1.AdminModels.ModelTransaction.find({}, { feeType: 1, feeAmount: 1, transactionId: 1, createdAt: 1 })
+                    .limit(limit)
+                    .skip(skip)
+                    .sort({ updatedAt: -1 });
+                return new helperFun_1.resp_Object("Transactions", 200, trdata);
+            }
+            catch (error) {
+                return { CatchError: error };
+            }
+        });
+    }
+    ;
+    // =========================filter by date=========================
+    transactionsByDate(startDate, endDate) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (!startDate) {
+                    throw new helperFun_1.error_Object("Please enter start date", 400);
+                }
+                else {
+                    if (!endDate) {
+                        throw new helperFun_1.error_Object("Please enter end date", 400);
+                    }
+                    else {
+                        const newendDate = new Date(endDate);
+                        newendDate.setDate(newendDate.getDate() + 1);
+                        if (!newendDate) {
+                            throw new helperFun_1.error_Object("Please enter a valid date", 400);
+                        }
+                        else {
+                            const result = yield index_1.AdminModels.ModelTransaction.find({
+                                createdAt: { $gte: startDate, $lte: newendDate },
+                            }).sort({ updatedAt: -1 });
+                            if (result.length == 0) {
+                                throw new helperFun_1.error_Object("No result found", 404);
+                            }
+                            else {
+                                return new helperFun_1.resp_Object("Filtered Data by Date", 200, result);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (error) {
+                return { CatchError: error };
+            }
+        });
+    }
+    ;
+    // =================filter by class=====================
+    transactionByClass(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const class_id = id;
+                console.log(class_id);
+                const transactions = yield index_1.AdminModels.ModelTransaction.find({ classId: class_id });
+                console.log(transactions);
+                if (transactions.length === 0)
+                    throw message_1.MESSAGES.NO_MORE_ENTRIES_ARE_AVAILABLE;
+                const transacLength = transactions.length;
+                return new helperFun_1.resp_Object(message_1.MESSAGES.DATA_RETREIVE_SUCCESSFULLY, http_status_codes_1.default.OK, { transacLength, transactions });
+            }
+            catch (error) {
+                return { CatchError: error };
+            }
+        });
+    }
+    ;
+    // =====================filter by name====================
+    // @Security('Bearer')
+    // @Get("/transaction/byname/:firstname")
+    // public async transactionByName(firstname: string): Promise<responseType | any> {
+    // 	try {
+    // 		if (!firstname) {
+    // 			throw new error_Object("Please enter a name", 400);
+    // 		} else {
+    // 			const databyname = await AdminModels.ModelTransaction.find({
+    // 				fname: firstname,
+    // 			});
+    // 			if (databyname.length == 0) {
+    // 				throw new error_Object("No records found", 403);
+    // 			} else {
+    // 				return new resp_Object("Filter Data by Name", 200, databyname);
+    // 			}
+    // 		}
+    // 	} catch (error) {
+    // 		return { CatchError: error }
+    // 	}
+    // };
+    transactionOfLastDays(total_days) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (total_days == 0)
+                    throw message_1.MESSAGES.PLEASE_ENTER_VALID_NUMBER_OF_DAY;
+                console.log(typeof total_days);
+                let date = new Date();
+                date.setDate(date.getDate() - total_days);
+                console.log(date);
+                const transactions = yield index_1.AdminModels.ModelTransaction.find({
+                    updatedAt: { $lte: new Date(), $gte: date },
+                });
+                if (transactions.length === 0)
+                    throw message_1.MESSAGES.NO_MORE_ENTRIES_ARE_AVAILABLE;
+                const transacLength = transactions.length;
+                return new helperFun_1.resp_Object(message_1.MESSAGES.DATA_RETREIVE_SUCCESSFULLY, http_status_codes_1.default.OK, { transacLength, transactions });
+            }
+            catch (error) {
+                return { CatchError: error };
+            }
+        });
+    }
+    ;
+    totalFeeOfLastDays(class_id, from_date, to_date) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                //  if(!request) throw new error_Object("please enter data",400)
+                const startDate = new Date(from_date);
+                const endDate = new Date(to_date);
+                // endDate.setDate(endDate.getDate() + 1);
+                // console.log(startDate, "startdate");
+                // console.log(class_id);
+                var match_Condition;
+                var Total = [];
+                for (let index = 1; index <= 4; index++) {
+                    let date = new Date();
+                    if (index === 1) {
+                        date.setDate(date.getDate() - 7);
+                        // console.log(date, "date when index 1");
+                    }
+                    else if (index === 2) {
+                        date.setDate(date.getDate() - 30);
+                        // console.log(date, "date when index 2");
+                    }
+                    else if (index === 3) {
+                        date.setHours(0, 0, 0);
+                        // console.log(date.toString(), "tdate when index 3");
+                    }
+                    else if (index === 4) {
+                        const data = yield index_1.AdminModels.ModelTransaction.findOne();
+                        date = new Date(data.createdAt);
+                        // console.log(data.createdAt, "created index 4");
+                    }
+                    if (!class_id && !from_date && !to_date) {
+                        console.log("if");
+                        match_Condition = { updatedAt: { $gte: date } };
+                    }
+                    else if (class_id && !from_date && !to_date) {
+                        console.log("else if 1");
+                        match_Condition = {
+                            updatedAt: { $gte: date },
+                            classId: new mongoose_1.default.Types.ObjectId(class_id),
+                        };
+                    }
+                    else if (class_id && from_date && to_date) {
+                        console.log("else if 2");
+                        match_Condition = {
+                            updatedAt: { $gte: startDate, $lte: endDate },
+                            classId: new mongoose_1.default.Types.ObjectId(class_id),
+                        };
+                    }
+                    else if (!class_id && from_date && to_date) {
+                        throw "Please Enter Class Id with Session (from and to date)";
+                    }
+                    console.log(match_Condition, "match");
+                    var result = yield index_1.AdminModels.ModelTransaction.aggregate([
+                        { $match: match_Condition },
+                        {
+                            $group: {
+                                _id: null,
+                                total: {
+                                    $sum: "$feeAmount",
+                                },
+                            },
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                total: 1,
+                            },
+                        },
+                    ]);
+                    if (result.length === 0) {
+                        result.push(0);
+                    }
+                    Total.push(result);
+                }
+                console.log(match_Condition, "match");
+                let PastDaysTotal = {
+                    Today: Total[2],
+                    Last7Days: Total[0],
+                    Last30Days: Total[1],
+                    GrandTotal: Total[3],
+                };
+                // console.log(result, "result");
+                console.log(Total, "total ar");
+                return new helperFun_1.resp_Object(message_1.MESSAGES.DATA_RETREIVE_SUCCESSFULLY, http_status_codes_1.default.OK, PastDaysTotal);
+            }
+            catch (error) {
+                console.log(error);
+                return { CatchError: error };
+            }
+        });
+    }
 };
 __decorate([
     (0, tsoa_1.Post)("/user/create"),
@@ -506,6 +718,9 @@ __decorate([
     (0, tsoa_1.Security)("Bearer"),
     (0, tsoa_1.Get)("/users")
 ], AdminController.prototype, "User_detailsfun", null);
+__decorate([
+    (0, tsoa_1.Get)("/users/:id")
+], AdminController.prototype, "SingleUserDetails", null);
 __decorate([
     (0, tsoa_1.Security)("Bearer"),
     (0, tsoa_1.Post)("/class/create"),
@@ -545,8 +760,38 @@ __decorate([
     __param(1, (0, tsoa_1.Query)())
 ], AdminController.prototype, "get_Students", null);
 __decorate([
+    (0, tsoa_1.Security)('Bearer'),
+    (0, tsoa_1.Post)('/transaction/create'),
     __param(0, (0, tsoa_1.Body)())
 ], AdminController.prototype, "transactionHistory", null);
+__decorate([
+    (0, tsoa_1.Security)('Bearer'),
+    (0, tsoa_1.Get)('/transaction'),
+    __param(0, (0, tsoa_1.Query)()),
+    __param(1, (0, tsoa_1.Query)())
+], AdminController.prototype, "getAllTransaction", null);
+__decorate([
+    (0, tsoa_1.Security)('Bearer'),
+    (0, tsoa_1.Get)('/transaction/bydate'),
+    __param(0, (0, tsoa_1.Query)()),
+    __param(1, (0, tsoa_1.Query)())
+], AdminController.prototype, "transactionsByDate", null);
+__decorate([
+    (0, tsoa_1.Security)('Bearer'),
+    (0, tsoa_1.Get)("/transaction/byclass/:id")
+], AdminController.prototype, "transactionByClass", null);
+__decorate([
+    (0, tsoa_1.Security)('Bearer'),
+    (0, tsoa_1.Get)("/transaction/pastdays"),
+    __param(0, (0, tsoa_1.Query)())
+], AdminController.prototype, "transactionOfLastDays", null);
+__decorate([
+    (0, tsoa_1.Security)('Bearer'),
+    (0, tsoa_1.Get)("/transaction/totalfee"),
+    __param(0, (0, tsoa_1.Query)()),
+    __param(1, (0, tsoa_1.Query)()),
+    __param(2, (0, tsoa_1.Query)())
+], AdminController.prototype, "totalFeeOfLastDays", null);
 AdminController = __decorate([
     (0, tsoa_1.Tags)("Admin"),
     (0, tsoa_1.Route)("/admin")

@@ -27,6 +27,25 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"resp_Object": {
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"Status_Code": {
+						"type": "number",
+						"format": "double"
+					},
+					"result": {}
+				},
+				"required": [
+					"message",
+					"Status_Code",
+					"result"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"Boolean": {
 				"properties": {},
 				"type": "object",
@@ -92,6 +111,10 @@
 									"password": {
 										"type": "string"
 									},
+									"parentMobNum": {
+										"type": "number",
+										"format": "double"
+									},
 									"mobileNum": {
 										"type": "number",
 										"format": "double"
@@ -114,6 +137,7 @@
 									"mother_name",
 									"father_name",
 									"password",
+									"parentMobNum",
 									"mobileNum",
 									"email",
 									"lname",
@@ -176,6 +200,55 @@
 				}
 			}
 		},
+		"/admin/login/refreshtoken": {
+			"post": {
+				"operationId": "Renew_token",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"Bearer": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"refresh_token": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"refresh_token"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
 		"/admin/user/update/{id}": {
 			"put": {
 				"operationId": "Update_userfun",
@@ -220,17 +293,18 @@
 						"application/json": {
 							"schema": {
 								"properties": {
-									"religion": {
+									"mother_name": {
 										"type": "string"
 									},
 									"father_name": {
 										"type": "string"
 									},
-									"gender": {
-										"type": "string"
-									},
 									"password": {
 										"type": "string"
+									},
+									"parentMobNum": {
+										"type": "number",
+										"format": "double"
 									},
 									"mobileNum": {
 										"type": "number",
@@ -251,10 +325,10 @@
 									}
 								},
 								"required": [
-									"religion",
+									"mother_name",
 									"father_name",
-									"gender",
 									"password",
+									"parentMobNum",
 									"mobileNum",
 									"email",
 									"lname",
@@ -337,6 +411,60 @@
 					}
 				],
 				"parameters": []
+			}
+		},
+		"/admin/users/{id}": {
+			"get": {
+				"operationId": "SingleUserDetails",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"properties": {
+												"CatchError": {},
+												"CatchResponse": {
+													"$ref": "#/components/schemas/resp_Object"
+												}
+											},
+											"required": [
+												"CatchResponse"
+											],
+											"type": "object"
+										},
+										{
+											"properties": {
+												"CatchResponse": {},
+												"CatchError": {}
+											},
+											"required": [
+												"CatchError"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/admin/class/create": {
@@ -749,9 +877,9 @@
 				]
 			}
 		},
-		"/admin/login/refreshtoken": {
+		"/admin/transaction/create": {
 			"post": {
-				"operationId": "Renew_token",
+				"operationId": "TransactionHistory",
 				"responses": {
 					"200": {
 						"description": "Ok",
@@ -784,18 +912,256 @@
 						"application/json": {
 							"schema": {
 								"properties": {
-									"refresh_token": {
+									"classId": {
 										"type": "string"
+									},
+									"studentId": {
+										"type": "string"
+									},
+									"feeAmount": {
+										"type": "number",
+										"format": "double"
+									},
+									"feeType": {
+										"type": "number",
+										"format": "double"
 									}
 								},
 								"required": [
-									"refresh_token"
+									"classId",
+									"studentId",
+									"feeAmount",
+									"feeType"
 								],
 								"type": "object"
 							}
 						}
 					}
 				}
+			}
+		},
+		"/admin/transaction": {
+			"get": {
+				"operationId": "GetAllTransaction",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"Bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": true,
+						"schema": {}
+					},
+					{
+						"in": "query",
+						"name": "size",
+						"required": true,
+						"schema": {}
+					}
+				]
+			}
+		},
+		"/admin/transaction/bydate": {
+			"get": {
+				"operationId": "TransactionsByDate",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"Bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "startDate",
+						"required": true,
+						"schema": {}
+					},
+					{
+						"in": "query",
+						"name": "endDate",
+						"required": true,
+						"schema": {}
+					}
+				]
+			}
+		},
+		"/admin/transaction/byclass/{id}": {
+			"get": {
+				"operationId": "TransactionByClass",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"Bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/admin/transaction/pastdays": {
+			"get": {
+				"operationId": "TransactionOfLastDays",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"Bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "total_days",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/admin/transaction/totalfee": {
+			"get": {
+				"operationId": "TotalFeeOfLastDays",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/responseType"
+										},
+										{}
+									]
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"Bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "class_id",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "from_date",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "to_date",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		}
 	},
