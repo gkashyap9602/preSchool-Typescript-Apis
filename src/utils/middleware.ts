@@ -12,7 +12,7 @@ function err_create(req: Request, res: Response, next: NextFunction) {
 
 function handle_err(err: any, req: Request, res: Response, next: NextFunction) {
   console.log(err.stack, "handle side");
-  console.log(err, "errrr");
+  console.log(err, 'errrr');
 
   if(err.name === "MongoServerError" || err.code === 11000){
   res.json({

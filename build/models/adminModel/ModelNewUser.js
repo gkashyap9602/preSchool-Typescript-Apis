@@ -24,8 +24,6 @@ const NewUserSchema = new mongoose_1.Schema({
         type: Number,
         required: true,
         unique: true,
-        // min:10,
-        // max:10
     },
     password: {
         type: String,
@@ -34,17 +32,14 @@ const NewUserSchema = new mongoose_1.Schema({
     username: {
         type: String
     },
-    gender: {
-        type: String
-    },
     father_name: {
         type: String
     },
     mother_name: {
         type: String
     },
-    religion: {
-        type: String
+    parent_number: {
+        type: Number
     }
 }, {
     timestamps: true

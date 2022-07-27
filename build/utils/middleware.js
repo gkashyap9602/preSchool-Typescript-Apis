@@ -13,7 +13,7 @@ function err_create(req, res, next) {
 }
 function handle_err(err, req, res, next) {
     console.log(err.stack, "handle side");
-    console.log(err, "errrr");
+    console.log(err, 'errrr');
     if (err.name === "MongoServerError" || err.code === 11000) {
         res.json({
             message: "Duplicate Value or User Details Already exists",

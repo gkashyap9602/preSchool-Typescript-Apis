@@ -1,3 +1,4 @@
+import { string } from "joi";
 import { Schema, model, Document } from "mongoose"
 
 export interface userInterface {
@@ -5,13 +6,12 @@ export interface userInterface {
     fname: string,
     lname: string,
     email: string,
-    mobileNum: string,
+    mobileNum: number,
     password: string,
     username: string,
-    gender: string,
     father_name: string,
     mother_name: string,
-    religion: string
+    parent_number : number
 
 }
 
@@ -34,7 +34,7 @@ const NewUserSchema = new Schema<userInterface>({
         required: true
     },
     mobileNum: {
-        type: String,
+        type: Number,
         required: true,
         unique: true,
     },
@@ -51,7 +51,9 @@ const NewUserSchema = new Schema<userInterface>({
     mother_name: {
         type: String
     },
-  
+    parent_number : {
+        type : Number
+    }
 
 },
     {

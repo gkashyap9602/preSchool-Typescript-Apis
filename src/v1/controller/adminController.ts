@@ -261,7 +261,7 @@ export class AdminController extends Controller {
 			let Class_Data = request;
 			const {error,value} = validations.newCourseSchema.validate(request)
 			if (error){
-				throw new error_Object(error.message, http.UNPROCESSABLE_ENTITY);
+				throw new error_Object(error.message.replace(/[^a-zA-Z0-9_-]/g,' '), http.UNPROCESSABLE_ENTITY);
 
 			}
 			if(!Class_Data) throw new error_Object("please enter data",404)
@@ -324,8 +324,9 @@ export class AdminController extends Controller {
 		try {
 			const body = request
 			const {error,value} = validations.newStudentSchema.validate(request)
+
 			if (error){
-				throw new error_Object(error.message, http.UNPROCESSABLE_ENTITY);
+				throw new error_Object(error.message.replace(/[^a-zA-Z0-9_-]/g,' '), http.UNPROCESSABLE_ENTITY);
 
 			}
 			console.log(body.userId,"userid",body.classId,"classID")
