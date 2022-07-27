@@ -5,7 +5,7 @@ import { AdminController } from "../controller/adminController"
 import { verify_token } from "../../utils/auth"
 import { response_handler, object_id_check } from "../../utils/helperFun"
 
-router.post('/user/create', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/user/create',verify_token, async (req: Request, res: Response, next: NextFunction) => {
     const controller = new AdminController(req, res)
     if(!req.body) {
         res.status(400).send({message:"body is emptyy",status_code:400})
@@ -45,6 +45,13 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     const controller = new AdminController(req, res)
     console.log(req.body, "admin route side");
     const response = await controller.AdminLoginFun(req.body)
+    response.CatchError ? next(response.CatchError) : response_handler(response, res)
+
+});
+router.post('/login/refreshtoken', async (req: Request, res: Response, next: NextFunction) => {
+    const controller = new AdminController(req, res)
+    console.log(req.body, "admin route side");
+    const response = await controller.renew_token(req.body)
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
 
 });
@@ -115,12 +122,13 @@ router.get('/students',async (req: Request, res: Response, next: NextFunction) =
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
 
 });
-router.post('/login/refreshtoken', async (req: Request, res: Response, next: NextFunction) => {
-    const controller = new AdminController(req, res)
-    console.log(req.body, "admin route side");
-    const response = await controller.renew_token(req.body)
-    response.CatchError ? next(response.CatchError) : response_handler(response, res)
+// router.post('/transaction/create/:id',async (req: Request, res: Response, next: NextFunction) => {
+//     const controller = new AdminController(req, res) 
 
-});
+//     // const {page,size} = req.body
+//     // const response = await controller.transactionHistory(req.body,)
+//     response.CatchError ? next(response.CatchError) : response_handler(response, res)
+
+// });
 
 export = router;

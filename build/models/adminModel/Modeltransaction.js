@@ -3,12 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ModelTransaction = void 0;
 const mongoose_1 = require("mongoose");
 const NewTransactionSchema = new mongoose_1.Schema({
-    fee_type: {
+    feeType: {
         type: Number,
         enum: [1, 2, 3],
         required: true
     },
-    fee_amount: {
+    feeAmount: {
         type: Number,
         required: true
     },

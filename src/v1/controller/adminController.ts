@@ -6,10 +6,9 @@ import { MESSAGES } from "../../utils/message";
 import bcrypt from "bcrypt";
 import http from "http-status-codes";
 import Services from "../../services/index"
-import { refresh_token_SecretKey } from "../../config/config"
-import jwt from "jsonwebtoken"
 import { genAuthToken, random_Otpfun ,verify_refresh_token} from "../../utils/auth";
-import mongoose from "mongoose"
+import crypto from "crypto"
+
 import {
 	error_Object,
 	resp_Object,
@@ -49,7 +48,10 @@ export class AdminController extends Controller {
 		this.userId = req.body.user ? req.body.user._id : "";
 		this.userRole = req.body.user ? req.body.user.role : null;
 	};
-
+	public async generateTransId(): Promise<responseType | any> {
+		const id = crypto.randomBytes(16).toString("hex");
+		return id;
+	  }
 	@Post("/user/create")
 	public async New_Users(@Body() request: { role: number; fname: string; lname: string; email: string; mobileNum: number; password: string; father_name: string; mother_name: string;}): Promise<responseType | any> {
 		try {
@@ -152,6 +154,38 @@ export class AdminController extends Controller {
 			}
 		} catch (error) {
 			return { CatchError: error };
+		}
+	};
+
+	
+	//--------------------refresh token-----------------------------
+	@Security('Bearer')
+	@Post('/login/refreshtoken')
+	public async renew_token(@Body() request: { refresh_token: string }): Promise<responseType | any> {
+		try {
+			const { refresh_token } = request
+			if(!refresh_token) throw new error_Object("please enter  data",404)
+			console.log(refresh_token,"controller side");
+
+			if (refresh_token || refreshTokens.includes(refresh_token)) {
+				const verify: any =  await verify_refresh_token(refresh_token)
+				// const verify: any =  jwt.verify(refresh_token, refresh_token_SecretKey)
+				if (verify.verify_err) {
+					console.log(verify.verify_err,"verify_err sideeeeeeeeeeee");	
+					throw verify.verify_err
+				}
+				// new error_Object("invalid token please check", 422)
+				console.log(verify, "verifyyyy");
+				const New_Access_token = genAuthToken(verify._id);
+				if (New_Access_token) {
+					return new resp_Object(MESSAGES.TOKEN_GENERATED_SUCCESSFULLY, http.CREATED, { NewAccesstoken: New_Access_token.Access_token })
+				}
+			}
+		} catch (error) {
+			console.log(error, "catch side err");
+
+			return { CatchError: error }
+
 		}
 	};
 
@@ -423,36 +457,101 @@ export class AdminController extends Controller {
 		  return { errors: error };
 		}
 	  }
+// -----------------------transactions routes---------------------------------
+public async transactionHistory(
+    @Body() request: { feeType: number; Amount: number },studentId: string,classId: string ): Promise<responseType | any> {
+    try {
+      if (!studentId) {
+        throw new error_Object("Pease enter valid student id", 400);
+      } else {
+        if (!classId) {
+          throw new error_Object("Please enter valid class id", 400);
+        } else {
+          const studentdata: object | any = await AdminModels.ModelNewStudent.findOne({
+            _id: studentId,
+          });
+          if (!studentdata) {
+            throw new error_Object("Data not found", 403);
+          } else {
+            const obj = {
+			  studentId: studentId,
+              classId: classId,
+              feeType: request.feeType,
+              Amount: request.Amount,
+              transactionId: await this.generateTransId(),
+            };
 
-	//--------------------refresh token-----------------------------
-	@Security('Bearer')
-	@Post('/login/refreshtoken')
-	public async renew_token(@Body() request: { refresh_token: string }): Promise<responseType | any> {
-		try {
-			const { refresh_token } = request
-			if(!refresh_token) throw new error_Object("please enter  data",404)
-			console.log(refresh_token,"controller side");
+            const classdata: object | any = await AdminModels.ModelNewCource.findOne({
+              _id: classId,
+            });
+            const myfee = classdata.Admission_Fee;
+            const data1 = studentdata.Firstname;
+            await new AdminModels.ModelTransaction(obj).save();
+            if (obj.feeType == 1) {
+              const rest = classdata.Admission_Fee - obj.Amount;
+              const myobj = await AdminModels.ModelNewStudent.findByIdAndUpdate(studentId, {
+                total_Due: rest,
+              });
+              return new resp_Object("Admission Fee Paid Successfully", 200);
+            } else if (obj.feeType == 2) {
+              const rest = classdata.Monthly_Fee - obj.Amount;
+              const sum = studentdata.total_Due + rest;
+              const myobj = await AdminModels.ModelNewStudent.findByIdAndUpdate(studentId, {
+                total_Due: sum,
+              });
+              return new resp_Object("Monthly Fee Paid Successfully", 200);
+            } else if (obj.feeType == 3) {
+              const rest = obj.Amount;
+              const sum = studentdata.total_Due - obj.Amount;
+              await AdminModels.ModelNewStudent.findByIdAndUpdate(studentId, {
+                total_Due: sum,
+              });
 
-			if (refresh_token || refreshTokens.includes(refresh_token)) {
-				const verify: any =  await verify_refresh_token(refresh_token)
-				// const verify: any =  jwt.verify(refresh_token, refresh_token_SecretKey)
-				if (verify.verify_err) {
-					console.log(verify.verify_err,"verify_err sideeeeeeeeeeee");	
-					throw verify.verify_err
-				}
-				// new error_Object("invalid token please check", 422)
-				console.log(verify, "verifyyyy");
-				const New_Access_token = genAuthToken(verify._id);
-				if (New_Access_token) {
-					return new resp_Object(MESSAGES.TOKEN_GENERATED_SUCCESSFULLY, http.CREATED, { NewAccesstoken: New_Access_token.Access_token })
-				}
-			}
-		} catch (error) {
-			console.log(error, "catch side err");
+              return new resp_Object("Dues Paid Successfully", 200);
+            }
+            const mydue: object | any = await AdminModels.ModelNewStudent.findById(studentId);
+            if (mydue.total_Due <= 0) {
+              await AdminModels.ModelNewStudent.findByIdAndUpdate(studentId, {
+                pendingFee: true,
+              });
+            } else {
+              await AdminModels.ModelNewStudent.findByIdAndUpdate(studentId, {
+                pendingFee: false,
+              });
+            }
+          }
+        }
+      }
+    } catch (error) {
+      return { errors: error };
+    }
+  };
 
-			return { CatchError: error }
-
-		}
-	};
+  // =============Get All Transactions===============
+//   public async gettransaction(
+//     @Query() request: { page: number; size: number | any }
+//   ): Promise<responseType | any> {
+//     try {
+//       let { page, size } = request;
+//       if (!page) {
+//         page = 1;
+//       }
+//       if (!size) {
+//         size = 5;
+//       }
+//       const limit = parseInt(size);
+//       const skip = (page - 1) * size;
+//       const trdata = await ModelTransaction.find(
+//         {},
+//         { Fee_type: 1, Amount: 1, transactionId: 1, createdAt: 1 }
+//       )
+//         .limit(limit)
+//         .skip(skip)
+//         .sort({ updatedAt: -1 });
+//       return new resp_Object("Transactions", 200, trdata);
+//     } catch (error) {
+//       return { errors: error };
+//     }
+//   }
 
 };

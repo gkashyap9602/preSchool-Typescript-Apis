@@ -16,7 +16,7 @@ const router = express_1.default.Router();
 const adminController_1 = require("../controller/adminController");
 const auth_1 = require("../../utils/auth");
 const helperFun_1 = require("../../utils/helperFun");
-router.post('/user/create', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/user/create', auth_1.verify_token, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
     if (!req.body) {
         res.status(400).send({ message: "body is emptyy", status_code: 400 });
@@ -49,6 +49,12 @@ router.post('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, func
     const controller = new adminController_1.AdminController(req, res);
     console.log(req.body, "admin route side");
     const response = yield controller.AdminLoginFun(req.body);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
+router.post('/login/refreshtoken', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    console.log(req.body, "admin route side");
+    const response = yield controller.renew_token(req.body);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
 //  router.get('/users/:id',async(req: Request, res: Response, next: NextFunction)=>{
@@ -106,12 +112,6 @@ router.get('/students', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     const controller = new adminController_1.AdminController(req, res);
     const { page, size } = req.query;
     const response = yield controller.get_Students(page, size);
-    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
-}));
-router.post('/login/refreshtoken', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const controller = new adminController_1.AdminController(req, res);
-    console.log(req.body, "admin route side");
-    const response = yield controller.renew_token(req.body);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
 module.exports = router;

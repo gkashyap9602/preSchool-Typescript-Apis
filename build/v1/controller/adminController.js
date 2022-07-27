@@ -28,6 +28,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const index_2 = __importDefault(require("../../services/index"));
 const auth_1 = require("../../utils/auth");
+const crypto_1 = __importDefault(require("crypto"));
 const helperFun_1 = require("../../utils/helperFun");
 const tsoa_1 = require("tsoa");
 let refreshTokens = [];
@@ -40,6 +41,12 @@ let AdminController = class AdminController extends tsoa_1.Controller {
         this.userRole = req.body.user ? req.body.user.role : null;
     }
     ;
+    generateTransId() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const id = crypto_1.default.randomBytes(16).toString("hex");
+            return id;
+        });
+    }
     New_Users(request) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -121,6 +128,36 @@ let AdminController = class AdminController extends tsoa_1.Controller {
                 }
             }
             catch (error) {
+                return { CatchError: error };
+            }
+        });
+    }
+    ;
+    //--------------------refresh token-----------------------------
+    renew_token(request) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { refresh_token } = request;
+                if (!refresh_token)
+                    throw new helperFun_1.error_Object("please enter  data", 404);
+                console.log(refresh_token, "controller side");
+                if (refresh_token || refreshTokens.includes(refresh_token)) {
+                    const verify = yield (0, auth_1.verify_refresh_token)(refresh_token);
+                    // const verify: any =  jwt.verify(refresh_token, refresh_token_SecretKey)
+                    if (verify.verify_err) {
+                        console.log(verify.verify_err, "verify_err sideeeeeeeeeeee");
+                        throw verify.verify_err;
+                    }
+                    // new error_Object("invalid token please check", 422)
+                    console.log(verify, "verifyyyy");
+                    const New_Access_token = (0, auth_1.genAuthToken)(verify._id);
+                    if (New_Access_token) {
+                        return new helperFun_1.resp_Object(message_1.MESSAGES.TOKEN_GENERATED_SUCCESSFULLY, http_status_codes_1.default.CREATED, { NewAccesstoken: New_Access_token.Access_token });
+                    }
+                }
+            }
+            catch (error) {
+                console.log(error, "catch side err");
                 return { CatchError: error };
             }
         });
@@ -365,32 +402,78 @@ let AdminController = class AdminController extends tsoa_1.Controller {
             }
         });
     }
-    //--------------------refresh token-----------------------------
-    renew_token(request) {
+    // -----------------------transactions routes---------------------------------
+    transactionHistory(request, studentId, classId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { refresh_token } = request;
-                if (!refresh_token)
-                    throw new helperFun_1.error_Object("please enter  data", 404);
-                console.log(refresh_token, "controller side");
-                if (refresh_token || refreshTokens.includes(refresh_token)) {
-                    const verify = yield (0, auth_1.verify_refresh_token)(refresh_token);
-                    // const verify: any =  jwt.verify(refresh_token, refresh_token_SecretKey)
-                    if (verify.verify_err) {
-                        console.log(verify.verify_err, "verify_err sideeeeeeeeeeee");
-                        throw verify.verify_err;
+                if (!studentId) {
+                    throw new helperFun_1.error_Object("Pease enter valid student id", 400);
+                }
+                else {
+                    if (!classId) {
+                        throw new helperFun_1.error_Object("Please enter valid class id", 400);
                     }
-                    // new error_Object("invalid token please check", 422)
-                    console.log(verify, "verifyyyy");
-                    const New_Access_token = (0, auth_1.genAuthToken)(verify._id);
-                    if (New_Access_token) {
-                        return new helperFun_1.resp_Object(message_1.MESSAGES.TOKEN_GENERATED_SUCCESSFULLY, http_status_codes_1.default.CREATED, { NewAccesstoken: New_Access_token.Access_token });
+                    else {
+                        const studentdata = yield index_1.AdminModels.ModelNewStudent.findOne({
+                            _id: studentId,
+                        });
+                        if (!studentdata) {
+                            throw new helperFun_1.error_Object("Data not found", 403);
+                        }
+                        else {
+                            const obj = {
+                                studentId: studentId,
+                                classId: classId,
+                                feeType: request.feeType,
+                                Amount: request.Amount,
+                                transactionId: yield this.generateTransId(),
+                            };
+                            const classdata = yield index_1.AdminModels.ModelNewCource.findOne({
+                                _id: classId,
+                            });
+                            const myfee = classdata.Admission_Fee;
+                            const data1 = studentdata.Firstname;
+                            yield new index_1.AdminModels.ModelTransaction(obj).save();
+                            if (obj.feeType == 1) {
+                                const rest = classdata.Admission_Fee - obj.Amount;
+                                const myobj = yield index_1.AdminModels.ModelNewStudent.findByIdAndUpdate(studentId, {
+                                    total_Due: rest,
+                                });
+                                return new helperFun_1.resp_Object("Admission Fee Paid Successfully", 200);
+                            }
+                            else if (obj.feeType == 2) {
+                                const rest = classdata.Monthly_Fee - obj.Amount;
+                                const sum = studentdata.total_Due + rest;
+                                const myobj = yield index_1.AdminModels.ModelNewStudent.findByIdAndUpdate(studentId, {
+                                    total_Due: sum,
+                                });
+                                return new helperFun_1.resp_Object("Monthly Fee Paid Successfully", 200);
+                            }
+                            else if (obj.feeType == 3) {
+                                const rest = obj.Amount;
+                                const sum = studentdata.total_Due - obj.Amount;
+                                yield index_1.AdminModels.ModelNewStudent.findByIdAndUpdate(studentId, {
+                                    total_Due: sum,
+                                });
+                                return new helperFun_1.resp_Object("Dues Paid Successfully", 200);
+                            }
+                            const mydue = yield index_1.AdminModels.ModelNewStudent.findById(studentId);
+                            if (mydue.total_Due <= 0) {
+                                yield index_1.AdminModels.ModelNewStudent.findByIdAndUpdate(studentId, {
+                                    pendingFee: true,
+                                });
+                            }
+                            else {
+                                yield index_1.AdminModels.ModelNewStudent.findByIdAndUpdate(studentId, {
+                                    pendingFee: false,
+                                });
+                            }
+                        }
                     }
                 }
             }
             catch (error) {
-                console.log(error, "catch side err");
-                return { CatchError: error };
+                return { errors: error };
             }
         });
     }
@@ -404,6 +487,11 @@ __decorate([
     (0, tsoa_1.Post)("/login"),
     __param(0, (0, tsoa_1.Body)())
 ], AdminController.prototype, "AdminLoginFun", null);
+__decorate([
+    (0, tsoa_1.Security)('Bearer'),
+    (0, tsoa_1.Post)('/login/refreshtoken'),
+    __param(0, (0, tsoa_1.Body)())
+], AdminController.prototype, "renew_token", null);
 __decorate([
     (0, tsoa_1.Security)("Bearer"),
     (0, tsoa_1.Put)("/user/update/:id"),
@@ -456,10 +544,8 @@ __decorate([
     __param(1, (0, tsoa_1.Query)())
 ], AdminController.prototype, "get_Students", null);
 __decorate([
-    (0, tsoa_1.Security)('Bearer'),
-    (0, tsoa_1.Post)('/login/refreshtoken'),
     __param(0, (0, tsoa_1.Body)())
-], AdminController.prototype, "renew_token", null);
+], AdminController.prototype, "transactionHistory", null);
 AdminController = __decorate([
     (0, tsoa_1.Tags)("Admin"),
     (0, tsoa_1.Route)("/admin")

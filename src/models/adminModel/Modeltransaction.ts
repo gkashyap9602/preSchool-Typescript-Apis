@@ -10,12 +10,12 @@ export interface transaction_interface {
 }
 
 const NewTransactionSchema = new Schema({
-    fee_type: {
+    feeType: {
         type: Number,
         enum: [1, 2, 3],
         required: true
     },
-    fee_amount: {
+    feeAmount: {
         type: Number,
         required: true
     },
