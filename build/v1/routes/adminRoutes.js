@@ -18,6 +18,9 @@ const auth_1 = require("../../utils/auth");
 const helperFun_1 = require("../../utils/helperFun");
 router.post('/user/create', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const controller = new adminController_1.AdminController(req, res);
+    if (!req.body) {
+        res.status(400).send({ message: "body is emptyy", status_code: 400 });
+    }
     const response = yield controller.New_Users(req.body);
     console.log(response, "response");
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);

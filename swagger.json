@@ -386,8 +386,7 @@
 										"type": "string"
 									},
 									"Class": {
-										"type": "number",
-										"format": "double"
+										"type": "string"
 									}
 								},
 								"required": [

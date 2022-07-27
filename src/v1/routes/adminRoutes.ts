@@ -7,6 +7,9 @@ import { response_handler, object_id_check } from "../../utils/helperFun"
 
 router.post('/user/create', async (req: Request, res: Response, next: NextFunction) => {
     const controller = new AdminController(req, res)
+    if(!req.body) {
+        res.status(400).send({message:"body is emptyy",status_code:400})
+    }
     const response = await controller.New_Users(req.body)
     console.log(response, "response");
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
