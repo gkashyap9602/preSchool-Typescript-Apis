@@ -20,6 +20,10 @@ const NewUserSchema = new mongoose_1.Schema({
         unique: true,
         required: true
     },
+    parentMobNum: {
+        type: Number,
+        required: true,
+    },
     mobileNum: {
         type: Number,
         required: true,
@@ -35,7 +39,8 @@ const NewUserSchema = new mongoose_1.Schema({
         type: String
     },
     father_name: {
-        type: String
+        type: String,
+        required: true
     },
     mother_name: {
         type: String

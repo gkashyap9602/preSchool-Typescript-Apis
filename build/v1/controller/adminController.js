@@ -403,9 +403,10 @@ let AdminController = class AdminController extends tsoa_1.Controller {
         });
     }
     // -----------------------transactions routes---------------------------------
-    transactionHistory(request, studentId, classId) {
+    transactionHistory(request) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const { studentId, classId } = request;
                 if (!studentId) {
                     throw new helperFun_1.error_Object("Pease enter valid student id", 400);
                 }

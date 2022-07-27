@@ -53,7 +53,7 @@ export class AdminController extends Controller {
 		return id;
 	  }
 	@Post("/user/create")
-	public async New_Users(@Body() request: { role: number; fname: string; lname: string; email: string; mobileNum: number; password: string; father_name: string; mother_name: string;}): Promise<responseType | any> {
+	public async New_Users(@Body() request: { role: number; fname: string; lname: string; email: string; mobileNum: number;parentMobNum:number; password: string; father_name: string; mother_name: string;}): Promise<responseType | any> {
 		try {
 			const salt = await bcrypt.genSalt(10);
 			const body = request;
@@ -191,7 +191,7 @@ export class AdminController extends Controller {
 
 	@Security("Bearer")
 	@Put("/user/update/:id")
-	public async Update_userfun(@Body() request: { role: number; fname: string; lname: string; email: string; mobileNum: number; password: string; gender: string; father_name: string; religion: string; }, id: string): Promise<responseType | any> {
+	public async Update_userfun(@Body() request: { role: number; fname: string; lname: string; email: string; mobileNum: number;parentMobNum:number; password: string; father_name: string;mother_name: string }, id: string): Promise<responseType | any> {
 		try {
 			const user_id = id;
 			console.log(user_id, "idd");
@@ -459,8 +459,10 @@ export class AdminController extends Controller {
 	  }
 // -----------------------transactions routes---------------------------------
 public async transactionHistory(
-    @Body() request: { feeType: number; Amount: number },studentId: string,classId: string ): Promise<responseType | any> {
+    @Body() request: { feeType: number; Amount: number ;studentId: string,classId: string} ): Promise<responseType | any> {
     try {
+
+		const {studentId,classId} = request
       if (!studentId) {
         throw new error_Object("Pease enter valid student id", 400);
       } else {
@@ -552,6 +554,6 @@ public async transactionHistory(
 //     } catch (error) {
 //       return { errors: error };
 //     }
-//   }
+//   };
 
 };

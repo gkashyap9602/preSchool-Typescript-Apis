@@ -114,4 +114,9 @@ router.get('/students', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     const response = yield controller.get_Students(page, size);
     response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
 }));
+router.post('/transaction/create/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const controller = new adminController_1.AdminController(req, res);
+    const response = yield controller.transactionHistory(req.body);
+    response.CatchError ? next(response.CatchError) : (0, helperFun_1.response_handler)(response, res);
+}));
 module.exports = router;

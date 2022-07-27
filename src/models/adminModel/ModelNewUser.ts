@@ -5,6 +5,7 @@ export interface userInterface {
     fname: string,
     lname: string,
     email: string,
+    parentMobNum:number,
     mobileNum: number,
     password: string,
     username: string,
@@ -31,6 +32,10 @@ const NewUserSchema = new Schema<userInterface>({
         unique: true,
         required: true
     },
+    parentMobNum:{
+        type: Number,
+        required: true,
+    },
     mobileNum: {
         type: Number,
         required: true,
@@ -46,7 +51,8 @@ const NewUserSchema = new Schema<userInterface>({
         type: String
     },
     father_name: {
-        type: String
+        type: String,
+        required:true
     },
     mother_name: {
         type: String

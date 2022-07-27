@@ -122,13 +122,11 @@ router.get('/students',async (req: Request, res: Response, next: NextFunction) =
     response.CatchError ? next(response.CatchError) : response_handler(response, res)
 
 });
-// router.post('/transaction/create/:id',async (req: Request, res: Response, next: NextFunction) => {
-//     const controller = new AdminController(req, res) 
+router.post('/transaction/create/:id',async (req: Request, res: Response, next: NextFunction) => {
+    const controller = new AdminController(req, res) 
+    const response = await controller.transactionHistory(req.body,)
+    response.CatchError ? next(response.CatchError) : response_handler(response, res)
 
-//     // const {page,size} = req.body
-//     // const response = await controller.transactionHistory(req.body,)
-//     response.CatchError ? next(response.CatchError) : response_handler(response, res)
-
-// });
+});
 
 export = router;
